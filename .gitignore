@@ -1,0 +1,65 @@
+# ======================================
+# Java Gradle Application .gitignore
+# ======================================
+
+# --- Compiled class files ---
+*.class
+
+# --- Build output directories ---
+/build/
+/out/
+/bin/
+
+# --- Log files ---
+*.log
+
+# --- Temporary and backup files ---
+*.tmp
+*.swp
+*~
+*.bak
+
+# --- Gradle-specific files ---
+.gradle/
+/gradle/
+!gradle/wrapper/gradle-wrapper.jar   # Keep the Gradle wrapper JAR so others can build
+
+# --- IDE and editor configurations ---
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.settings/
+.project
+.classpath
+
+# --- OS-generated files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Archives and packaged outputs ---
+*.jar
+*.war
+*.ear
+*.zip
+*.tar
+*.tar.gz
+
+# --- Environment and secret files ---
+.env
+*.env
+
+# --- Test and coverage results ---
+/test-results/
+/build/reports/
+/coverage/
+/jacoco.exec
+*.exec
+*.coverage
+
+# --- Miscellaneous ---
+/logs/
+/tmp/
