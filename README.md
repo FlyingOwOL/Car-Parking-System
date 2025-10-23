@@ -2,10 +2,10 @@
 
 CCINFOM DB Application Project
 
-Google docs link:
+Google docs link:<br>
 https://docs.google.com/document/d/1zc7vMtX1sOtPOY-OOXvIVAXqmcdop1n-nW5Mv6c1t-s/edit?tab=t.0#heading=h.jkszv9f8bowu
 
-Data Model Diagram:
+Data Model Diagram:<br>
 https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pageId%22%3A%22eKcjBcnxX5BhiTAXoIdN%22%7D
 
 
@@ -14,6 +14,9 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
 - [Group Members](#group-members)
 
 ## Overview
+- This project simulates a car parking system in the real world using Java as the main programming language <br>
+  and SQL as the database connected via JDBC. 
+- This project is for a CCINFOM database application project 1st term, AY 2025-2026.  
 
 
 ## Program Structure
@@ -35,10 +38,10 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
     |   |   └──Main.java     
     |   |
     |   └──resources/
-    |           ├──images/              # used designs and etc
+    |           ├──images/              # used designs and etc for GUI
     |           |
-    |           └──sql/                 # querries
-    └──test/
+    |           └──sql/                 # SQL querries
+    └──test/                            # testcases 
 ```
 
 ## Group Members
