@@ -34,8 +34,17 @@ CREATE TABLE `customers` (
 -- Branches Record: defines physical location and maximum slots
 DROP TABLE IF EXISTS `branches`;
 CREATE TABLE `branches` (
-    -- TODO:
-);
+    `branch_ID` INT(11) NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `contact_number` VARCHAR(11) NOT NULL UNIQUE,
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `max_slots` INT NOT NULL,
+    `location` VARCHAR(100),
+    `opening_time` TIME,
+    `closing_time` TIME,
+
+    PRIMARY KEY (`branch_ID`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- Admin Record: Stores admin-specific details (1:1 with users WHERE role=`Admin`)
 DROP TABLE IF EXISTS `admins`;
@@ -73,8 +82,16 @@ CREATE TABLE `vehicles` (
 -- Parking Slot Record: Defines individual physical slots
 DROP TABLE IF EXISTS `parking_slots`;
 CREATE TABLE `parking_slots` (
-    -- TODO:
-);
+    `spot_ID` VARCHAR(11) NOT NULL,
+    `branch_ID` INT(11) NOT NULL,
+    `floor_level` INT NOT NULL,
+    `slot_type` ENUM('Regular', 'PWD', 'Motorcycle', 'VIP') NOT NULL,
+    `availability` BOOLEAN NOT NULL DEFAULT TRUE,
+
+    PRIMARY KEY (`spot_ID`),
+    FOREIGN KEY (`branch_ID`) REFERENCES `branches`(`branch_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- ===== TRANSACTIONAL TABLES =====
 -- Reservation Record: Tracks booking History
@@ -93,5 +110,14 @@ CREATE TABLE `payments` (
 -- Idea pa lng still looking how this can be integrated
 DROP TABLE IF EXISTS `pricing`;
 CREATE TABLE `pricing` (
-    -- TODO:
-);
+    `pricing_ID` INT(11) NOT NULL AUTO_INCREMENT,
+    `branch_ID` INT(11) NOT NULL,
+    `slot_type` ENUM('Regular', 'PWD', 'Motorcycle', 'VIP') NOT NULL,
+    `hourly_rate` DECIMAL(6,2) NOT NULL,
+    `overtime_rate` DECIMAL(6,2) NOT NULL,
+
+    PRIMARY KEY (`pricing_ID`),
+    UNIQUE KEY `uk_branch_slot` (`branch_ID`, `slot_type`), -- Ensures one price per slot type per branch
+    FOREIGN KEY (`branch_ID`) REFERENCES `branches`(`branch_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
