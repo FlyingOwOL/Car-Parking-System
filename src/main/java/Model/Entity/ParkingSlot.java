@@ -1,5 +1,9 @@
 package main.java.Model.Entity;
 
+/**
+ * Maps to the 'parking_slots' table in the database.
+ * Represents a physical, reservable space within a branch.
+ */
 public class ParkingSlot {
     private String spot_ID;
     private int branch_ID;
@@ -15,7 +19,12 @@ public class ParkingSlot {
     public ParkingSlot() {}
 
     /**
-     * Full Constructor
+     * Full Constructor for reading existing records from the database.
+     * @param spot_ID
+     * @param branch_ID
+     * @param floor_level
+     * @param slot_type
+     * @param availability
      */
     public ParkingSlot(String spot_ID, int branch_ID, int floor_level, SlotType slot_type, boolean availability) {
         this.spot_ID = spot_ID;
@@ -27,6 +36,10 @@ public class ParkingSlot {
 
     /**
      * Constructor for creating a new slot before insertion (availability defaults to true).
+     * @param spot_ID
+     * @param branch_ID
+     * @param floor_level
+     * @param slot_type
      */
     public ParkingSlot(String spot_ID, int branch_ID, int floor_level, SlotType slot_type) {
         this.spot_ID = spot_ID;
@@ -53,10 +66,10 @@ public class ParkingSlot {
     @Override
     public String toString() {
         return "ParkingSlot{" +
-                "Spot ID: " + spot_ID + '\'' +
-                ", Branch ID: " + branch_ID + '\'' +
-                ", Floor Level: " + floor_level + '\'' +
-                ", Slot Type: " + slot_type + '\'' +
+                "Spot ID: " + spot_ID +
+                ", Branch ID: " + branch_ID +
+                ", Floor Level: " + floor_level +
+                ", Slot Type: " + slot_type +
                 ", Availability: " + availability + '}';
     }
 }
