@@ -20,11 +20,11 @@ public class ParkingSlot {
 
     /**
      * Full Constructor for reading existing records from the database.
-     * @param spot_ID
-     * @param branch_ID
-     * @param floor_level
-     * @param slot_type
-     * @param availability
+     * @param spot_ID The unique ID of the parking spot (PK)
+     * @param branch_ID The ID of the branch the slot belongs tp (FK)
+     * @param floor_level the floor number where the slot is located
+     * @param slot_type The type of slot
+     * @param availability The current availability status
      */
     public ParkingSlot(String spot_ID, int branch_ID, int floor_level, SlotType slot_type, boolean availability) {
         this.spot_ID = spot_ID;
@@ -36,10 +36,10 @@ public class ParkingSlot {
 
     /**
      * Constructor for creating a new slot before insertion (availability defaults to true).
-     * @param spot_ID
-     * @param branch_ID
-     * @param floor_level
-     * @param slot_type
+     * @param spot_ID The unique ID of the parking spot (PK)
+     * @param branch_ID The ID of the branch the slot belongs tp (FK)
+     * @param floor_level the floor number where the slot is located
+     * @param slot_type The type of slot
      */
     public ParkingSlot(String spot_ID, int branch_ID, int floor_level, SlotType slot_type) {
         this.spot_ID = spot_ID;
