@@ -1,5 +1,5 @@
 package main.java.DAO;
 
-public class CustomerDAO {
+public class AdminDAO {
     //TODO: RUBIA
 }

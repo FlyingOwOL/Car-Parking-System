@@ -97,14 +97,38 @@ CREATE TABLE `parking_slots` (
 -- Reservation Record: Tracks booking History
 DROP TABLE IF EXISTS `reservations`;
 CREATE TABLE `reservations` (
-    -- TODO:
-);
+    transact_ID INT(11) NOT NULL AUTO_INCREMENT,
+    vehicle_ID INT(11) NOT NULL,
+    spot_ID VARCHAR(10) NOT NULL,
+    expected_time_in DATETIME,
+    check_in_time DATETIME,
+    time_Out DATETIME,
+
+    PRIMARY KEY(transact_ID),
+    FOREIGN KEY(vehicle_ID) REFERENCES `vehicles`(`vehicle_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(spot_ID) REFERENCES `parking_slots`(`spot_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- Payment Record: Tracks payments details for a reservation
 DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
-    -- TODO:
-);
+    payment_ID INT(11) NOT NULL AUTO_INCREMENT,
+    transact_ID INT(11) NOT NULL UNIQUE,
+    amount_To_Pay DECIMAL(6, 2) NOT NULL,
+    amount_paid DECIMAL(6, 2),
+    payment_date DATETIME,
+    payment_status ENUM('Pending', 'Paid', 'Refunded') NOT NULL,
+    mode_of_payment ENUM('Cash', 'E-wallet', 'Credit Card'),
+    processed_by INT(11) NOT NULL,
+
+    PRIMARY KEY(payment_ID),
+    FOREIGN KEY(transact_ID) REFERENCES `reservations`(`transact_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(processed_by) REFERENCES `users`(`user_ID`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- Pricing Record: Stores the hourly rates
 -- Idea pa lng still looking how this can be integrated
