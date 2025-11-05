@@ -2,6 +2,10 @@ package main.java.Model.Entity;
 
 import java.math.BigDecimal;
 
+/**
+ * Maps to the 'pricing' table in the database.
+ * Represents the pricing of the branch for a slot_Type
+ */
 public class Pricing {
     private int pricing_ID;
     private int branch_ID;
