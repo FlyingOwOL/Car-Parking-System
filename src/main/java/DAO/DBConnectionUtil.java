@@ -26,18 +26,6 @@ public class DBConnectionUtil {
         } catch (IOException ex) {
             System.err.println("Error reading configuration file: " + ex.getMessage());
         }
-
-        // --- TEMPORARY DRIVER REGISTRATION ---
-        // Manually load the driver class name. This helps confirm if the JAR is on the path.
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("Driver registered successfully.");
-        } catch (ClassNotFoundException e) {
-            System.err.println("--- DRIVER NOT FOUND ERROR ---");
-            System.err.println("The MySQL Connector/J JAR is NOT on the runtime classpath.");
-            // If this fails, the error is definitely in the IntelliJ Run Configuration settings.
-        }
-        // --- END TEMPORARY DRIVER REGISTRATION ---
     }
 
     //TEMP! Make sure this works on your end!
