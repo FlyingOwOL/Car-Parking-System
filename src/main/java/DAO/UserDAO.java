@@ -7,6 +7,10 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.Optional;
 
+/**
+ * UserDAO is responsible for all data access operations related to the 'users' table.
+ * This includes authentication lookup and inserting new base user records.
+ */
 public class UserDAO {
 
     // === SQL QUERIES ===
@@ -49,5 +53,54 @@ public class UserDAO {
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
+    }
+
+    /**
+     * Inserts a new User record into the database during registration.
+     *
+     * @param user The User object containing email, password hash, and role.
+     * @return The generated user_ID if successful, otherwise -1.
+     */
+    public Optional<User> addUser(User user) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int generatedID = -1;
+
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS);
+
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getPassword_hash());
+            ps.setString(3, user.getRole().name());
+            ps.setObject(4, user.getJoin_date());
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedID = rs.getInt(1);
+                }
+            }
+
+            if (generatedID > 0) {
+                User newUser = new User(
+                        generatedID,
+                        user.getEmail(),
+                        user.getPassword_hash(),
+                        user.getRole(),
+                        user.getJoin_date()
+                );
+                return Optional.of(newUser);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("UserDAO Error in addUser: " + e.getMessage());
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps, rs);
+        }
+        return Optional.empty();
     }
 }
