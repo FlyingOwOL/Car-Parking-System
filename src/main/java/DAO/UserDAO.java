@@ -24,7 +24,7 @@ public class UserDAO {
      * @param email The unique email address of the user.
      * @return An Optional containing the User object if found, otherwise empty.
      */
-    public Optional<User> selectUserByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
