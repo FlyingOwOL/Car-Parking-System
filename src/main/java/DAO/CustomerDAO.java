@@ -1,5 +1,0 @@
-package main.java.DAO;
-
-public class CustomerDAO {
-    //TODO: RUBIA
-}

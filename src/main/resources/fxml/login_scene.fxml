@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.LoginController">
+    <VBox alignment="CENTER" layoutX="73.0" layoutY="50.0" prefHeight="300.0" prefWidth="454.0" style="-fx-background-color: #f4f4f4; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-padding: 20;" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="73.0" AnchorPane.rightAnchor="73.0" AnchorPane.topAnchor="50.0">
+
+        <Label text="Car Park System Login">
+            <font>
+                <Font name="Times New Roman Bold" size="20.0" />
+            </font>
+            <VBox.margin>
+                <Insets bottom="10.0" />
+            </VBox.margin>
+        </Label>
+
+        <Separator prefWidth="200.0" />
+
+        <Label text="Email Address:">
+            <VBox.margin>
+                <Insets top="15.0" />
+            </VBox.margin>
+        </Label>
+        <TextField fx:id="emailField" promptText="Enter email">
+            <VBox.margin>
+                <Insets bottom="10.0" />
+            </VBox.margin>
+        </TextField>
+
+        <Label text="Password:">
+            <VBox.margin>
+                <Insets top="5.0" />
+            </VBox.margin>
+        </Label>
+        <PasswordField fx:id="passwordField" promptText="Enter password">
+            <VBox.margin>
+                <Insets bottom="20.0" />
+            </VBox.margin>
+        </PasswordField>
+
+        <Button mnemonicParsing="false" onAction="#handleLoginButtonAction" prefWidth="100.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" text="Login">
+            <VBox.margin>
+                <Insets bottom="15.0" />
+            </VBox.margin>
+        </Button>
+
+        <Label fx:id="errorLabel" alignment="CENTER" prefHeight="20.0" prefWidth="200.0" textFill="RED">
+            <font>
+                <Font size="10.0" />
+            </font>
+        </Label>
+
+        <Label onMouseClicked="#handleRegisterLink" style="-fx-text-fill: #1976D2; -fx-cursor: hand;" text="New user? Register here." underline="true">
+            <VBox.margin>
+                <Insets top="5.0" />
+            </VBox.margin>
+        </Label>
+
+    </VBox>
+</AnchorPane>
