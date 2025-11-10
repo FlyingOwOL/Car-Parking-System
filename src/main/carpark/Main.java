@@ -30,7 +30,7 @@ public class Main extends Application {
 
             // 2. Set up the primary stage (the main window)
             primaryStage.setTitle("Car Park Reservation System");
-            primaryStage.setScene(new Scene(root, 400, 300)); // Set window size
+            primaryStage.setScene(new Scene(root, 1200, 800)); // Set window size
             primaryStage.setResizable(false);
             primaryStage.show();
         } catch (IOException e) {

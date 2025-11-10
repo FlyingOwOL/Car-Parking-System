@@ -88,7 +88,6 @@ public class LoginController {
     protected void handleRegisterLink(MouseEvent event) {
         System.out.println("Register link clicked. Loading registration scene...");
         // TODO: Implement navigation to the Registration FXML scene
-        // Example: loadScene("/fxml/registration_scene.fxml", event);
         showError("Registration scene not yet implemented.");
     }
 

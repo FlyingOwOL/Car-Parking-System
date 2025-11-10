@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.CustomerDashboardController">
+   <top>
+      <HBox alignment="CENTER_LEFT" prefHeight="68.0" prefWidth="1200.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="65.0" fitWidth="462.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../pictures/logo.png" />
+               </image></ImageView>
+            <Pane prefHeight="68.0" prefWidth="25.0" />
+            <Button fx:id="homeBUTTON" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleHomeClick" style="-fx-background-color: transparent;" text="HOME" textAlignment="CENTER">
+               <font>
+                  <Font name="Times New Roman Bold" size="16.0" />
+               </font>
+            </Button>
+            <Pane prefHeight="68.0" prefWidth="25.0" />
+            <Button fx:id="reservationBUTTON" mnemonicParsing="false" onAction="#handleReservationClick" style="-fx-background-color: transparent;" text="RESERVATION" textAlignment="CENTER">
+               <font>
+                  <Font name="Times New Roman Bold" size="16.0" />
+               </font>
+            </Button>
+            <Pane layoutX="431.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
+            <Button fx:id="locationsBUTTON" layoutX="456.0" layoutY="32.0" mnemonicParsing="false" onAction="#handleLocationsClick" style="-fx-background-color: transparent;" text="LOCATIONS" textAlignment="CENTER">
+               <font>
+                  <Font name="Times New Roman Bold" size="16.0" />
+               </font>
+            </Button>
+            <Pane layoutX="579.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
+            <Button fx:id="pricesBUTTON" layoutX="604.0" layoutY="32.0" mnemonicParsing="false" onAction="#handlePricesClick" style="-fx-background-color: transparent;" text="PRICES" textAlignment="CENTER">
+               <font>
+                  <Font name="Times New Roman Bold" size="16.0" />
+               </font>
+            </Button>
+            <Pane layoutX="708.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
+            <MenuButton fx:id="accountBUTTON" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" style="-fx-background-color: TRANSPARENT;" text="ACCOUNT">
+              <items>
+                <MenuItem fx:id="profileMENUITEM" mnemonicParsing="false" onAction="#handleProfileClick" text="PROFILE" />
+                <MenuItem fx:id="logoutMENUITEM" mnemonicParsing="false" onAction="#handleLogoutClick" text="LOG OUT" />
+              </items>
+               <font>
+                  <Font name="Times New Roman Bold" size="16.0" />
+               </font>
+            </MenuButton>
+         </children></HBox>
+   </top>
+   <center>
+      <AnchorPane fx:id="mainContentArea" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #FFFFFF;" BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <HBox alignment="BOTTOM_CENTER" prefHeight="40.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>
