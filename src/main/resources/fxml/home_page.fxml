@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.HomePageController">
+    <children>
+        <VBox alignment="TOP_LEFT" layoutX="100.0" layoutY="50.0" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+            <children>
+                <!-- This Label will be updated by the controller -->
+                <Label fx:id="welcomeMessageLabel" text="Welcome back to the Car Park System!">
+                    <font>
+                        <Font name="Times New Roman Bold" size="36.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <!-- This Label will also be updated by the controller -->
+                <Label fx:id="emailLabel" text="Logged in as: [user@email.com]">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+
+                <Label prefHeight="136.0" prefWidth="1200.0" text="There has been an increase in car ownership and use of private vehicles post-pandemic (Co et al., 2023). Given this unprecedented surge, finding available and convenient parking spaces in Manila has become a growing concern. This DB application aims to assist in this issue by providing parking garage services with a Car Park Reservation System that will allow customers to monitor available slots and secure them with ease, ensuring a more stress-free and efficient commute. There has been an increase in car ownership and use of private vehicles post-pandemic (Co et al., 2023). Given this unprecedented surge, finding available and convenient parking spaces in Manila has become a growing concern. This DB application aims to assist in this issue by providing parking garage services with a Car Park Reservation System that will allow customers to monitor available slots and secure them with ease, ensuring a more stress-free and efficient commute. " textAlignment="JUSTIFY" wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets top="20.0" />
+                    </VBox.margin>
+                </Label>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

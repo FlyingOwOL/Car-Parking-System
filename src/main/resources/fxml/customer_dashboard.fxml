@@ -7,13 +7,13 @@
 
 <BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.CustomerDashboardController">
    <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="68.0" prefWidth="1200.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_RIGHT" prefHeight="68.0" prefWidth="1200.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fitHeight="65.0" fitWidth="462.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="65.0" fitWidth="665.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../pictures/logo.png" />
                </image></ImageView>
-            <Pane prefHeight="68.0" prefWidth="25.0" />
+            <Pane prefHeight="68.0" prefWidth="374.0" />
             <Button fx:id="homeBUTTON" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleHomeClick" style="-fx-background-color: transparent;" text="HOME" textAlignment="CENTER">
                <font>
                   <Font name="Times New Roman Bold" size="16.0" />
@@ -21,18 +21,6 @@
             </Button>
             <Pane prefHeight="68.0" prefWidth="25.0" />
             <Button fx:id="reservationBUTTON" mnemonicParsing="false" onAction="#handleReservationClick" style="-fx-background-color: transparent;" text="RESERVATION" textAlignment="CENTER">
-               <font>
-                  <Font name="Times New Roman Bold" size="16.0" />
-               </font>
-            </Button>
-            <Pane layoutX="431.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
-            <Button fx:id="locationsBUTTON" layoutX="456.0" layoutY="32.0" mnemonicParsing="false" onAction="#handleLocationsClick" style="-fx-background-color: transparent;" text="LOCATIONS" textAlignment="CENTER">
-               <font>
-                  <Font name="Times New Roman Bold" size="16.0" />
-               </font>
-            </Button>
-            <Pane layoutX="579.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
-            <Button fx:id="pricesBUTTON" layoutX="604.0" layoutY="32.0" mnemonicParsing="false" onAction="#handlePricesClick" style="-fx-background-color: transparent;" text="PRICES" textAlignment="CENTER">
                <font>
                   <Font name="Times New Roman Bold" size="16.0" />
                </font>

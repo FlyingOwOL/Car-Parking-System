@@ -26,12 +26,6 @@ public class CustomerDashboardController {
     private Button reservationButton;
 
     @FXML
-    private Button locationsBUTTON;
-
-    @FXML
-    private Button pricesBUTTON;
-
-    @FXML
     private MenuButton accountBUTTON;
 
     @FXML
@@ -62,18 +56,6 @@ public class CustomerDashboardController {
     private void handleReservationClick(ActionEvent event) {
         System.out.println("Reservation clicked");
         loadPage("/fxml/reservation_page.fxml");
-    }
-
-    @FXML
-    private void handleLocationsClick(ActionEvent event) {
-        System.out.println("Locations clicked");
-        loadPage("/fxml/locations_page.fxml");
-    }
-
-    @FXML
-    private void handlePricesClick(ActionEvent event) {
-        System.out.println("Prices clicked");
-        loadPage("/fxml/prices_page");
     }
 
     @FXML

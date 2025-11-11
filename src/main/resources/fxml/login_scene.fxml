@@ -12,7 +12,7 @@
             <top>
                <VBox alignment="CENTER" prefHeight="86.0" prefWidth="487.0" BorderPane.alignment="CENTER">
                   <children>
-      
+
                        <Label text="Car Park Reservation System Login" textAlignment="CENTER">
                            <font>
                                <Font name="Times New Roman Bold" size="20.0" />
@@ -21,15 +21,15 @@
                                <Insets bottom="10.0" />
                            </VBox.margin>
                        </Label>
-      
+
                              <Separator prefWidth="200.0" />
                   </children>
                </VBox>
             </top>
             <center>
-                <VBox alignment="CENTER" prefHeight="262.0" prefWidth="195.0" style="-fx-background-color: #4b614d; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-padding: 20;" BorderPane.alignment="CENTER">
+                <VBox alignment="CENTER" prefHeight="262.0" prefWidth="451.0" style="-fx-background-color: #4b614d; -fx-border-color: #cccccc; -fx-border-width: 1px; -fx-padding: 20;" BorderPane.alignment="CENTER">
       
-                    <Label text="Email Address:" textAlignment="CENTER">
+                    <Label text="Email Address:" textAlignment="CENTER" textFill="WHITE">
                         <VBox.margin>
                             <Insets top="15.0" />
                         </VBox.margin>
@@ -40,7 +40,7 @@
                         </VBox.margin>
                     </TextField>
       
-                    <Label text="Password:" textAlignment="CENTER">
+                    <Label text="Password:" textAlignment="CENTER" textFill="WHITE">
                         <VBox.margin>
                             <Insets top="5.0" />
                         </VBox.margin>
@@ -75,11 +75,14 @@
                 </VBox>
             </center>
             <left>
-               <Pane prefHeight="262.0" prefWidth="74.0" BorderPane.alignment="CENTER" />
+               <Pane prefHeight="314.0" prefWidth="115.0" BorderPane.alignment="CENTER" />
             </left>
             <right>
-               <Pane prefHeight="262.0" prefWidth="74.0" BorderPane.alignment="CENTER" />
+               <Pane prefHeight="314.0" prefWidth="115.0" BorderPane.alignment="CENTER" />
             </right>
+            <bottom>
+               <Pane prefHeight="52.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+            </bottom>
          </BorderPane>
       </center>
       <top>
