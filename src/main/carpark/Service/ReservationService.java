@@ -22,6 +22,6 @@ public class ReservationService {
     1. Start Transaction.
     2. Verify Status: Call ReservationDAO.getReservationById() and ensure it's not already completed/paid.
     3. Update Status: Call ReservationDAO.updateReservationStatus() to 'Cancelled'.
-    4. Release Slot: Call LocationDAO.updateSlotAvailability(spotId, true) to mark it available.
+    4. Release Slot: Call ParkingDAO.updateSlotAvailability(spotId, true) to mark it available.
      */
  }
