@@ -30,7 +30,7 @@ public class ParkingDAO {
 
     // --- Pricing Rule ---
     private static final String SELECT_PRICING_RULE =
-            "SELECT pricing_ID, branch_ID, slot_type, hourly_rate, overtime_rate FROM pricing_rules " +
+            "SELECT pricing_ID, branch_ID, slot_type, hourly_rate, overtime_rate FROM pricing " +
                     "WHERE branch_ID = ? AND slot_type = ?";
 
     // --- Branch Queries ---
@@ -83,7 +83,7 @@ public class ParkingDAO {
                 slots.add(mapRowToParkingSlot(rs));
             }
         } catch (SQLException e) {
-            System.err.println("LocationDAO Error in getAvailableSlots: " + e.getMessage());
+            System.err.println("parkingDAO Error in getAvailableSlots: " + e.getMessage());
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
@@ -112,7 +112,7 @@ public class ParkingDAO {
             return affectedRows > 0;
 
         } catch (SQLException e) {
-            System.err.println("LocationDAO Error in updateSlotAvailability: " + e.getMessage());
+            System.err.println("parkingDAO Error in updateSlotAvailability: " + e.getMessage());
             return false;
         } finally {
             DBConnectionUtil.closeConnection(conn, ps);
@@ -143,7 +143,7 @@ public class ParkingDAO {
                 return Optional.of(mapRowToPricingRule(rs));
             }
         } catch (SQLException e) {
-            System.err.println("LocationDAO Error in getPricingRule: " + e.getMessage());
+            System.err.println("parkingDAO Error in getPricingRule: " + e.getMessage());
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
@@ -182,7 +182,7 @@ public class ParkingDAO {
                 branches.add(new Branch(branchId, name, contactNumber, email, maxSlots, location, openingTime, closingTime));
             }
         } catch (SQLException e) {
-            System.err.println("LocationDAO Error in getAllBranches: " + e.getMessage());
+            System.err.println("parkingDAO Error in getAllBranches: " + e.getMessage());
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<!-- This page is loaded into the <center> of the customer dashboard -->
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReservationPageController">
+    <children>
+      <BorderPane prefHeight="698.0" prefWidth="1200.0">
+         <top>
+            <Pane prefHeight="100.0" prefWidth="586.0" BorderPane.alignment="CENTER" />
+         </top>
+         <left>
+            <Pane prefHeight="598.0" prefWidth="170.0" BorderPane.alignment="CENTER" />
+         </left>
+         <right>
+            <Pane prefHeight="598.0" prefWidth="170.0" BorderPane.alignment="CENTER" />
+         </right>
+         <center>
+              <VBox alignment="TOP_CENTER" spacing="15.0" BorderPane.alignment="CENTER">
+                  <children>
+      
+                      <!-- Vehicle Selection -->
+                      <HBox alignment="CENTER_LEFT" spacing="10.0">
+                          <children>
+                              <Label prefWidth="100.0" style="-fx-font-weight: bold;" text="VEHICLE:">
+                           <font>
+                              <Font name="Times New Roman Bold" size="14.0" />
+                           </font></Label>
+                              <ComboBox fx:id="vehicleComboBox" onAction="#computePrice" prefHeight="27.0" prefWidth="250.0" promptText="Select your vehicle..." style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                        <Pane prefHeight="27.0" prefWidth="55.0" />
+                              <Label prefHeight="20.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="ENTRY:">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                              <DatePicker fx:id="entryDatePicker" onAction="#computePrice" prefHeight="27.0" prefWidth="138.0" promptText="Entry Date" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                              <ComboBox fx:id="entryTimeHour" onAction="#computePrice" prefWidth="70.0" promptText="Hr" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                              <ComboBox fx:id="entryTimeMinute" onAction="#computePrice" prefWidth="70.0" promptText="Min" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                          </children>
+                      </HBox>
+
+                      <!-- Location Selection -->
+                      <HBox alignment="CENTER_LEFT" spacing="10.0">
+                          <children>
+                              <Label prefWidth="100.0" style="-fx-font-weight: bold;" text="LOCATION:">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                              <ComboBox fx:id="locationComboBox" onAction="#computePrice" prefHeight="27.0" prefWidth="250.0" promptText="Select Parking Branch..." style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                        <Pane prefHeight="27.0" prefWidth="55.0" />
+                              <Label prefHeight="18.0" prefWidth="80.0" style="-fx-font-weight: bold;" text="EXIT:">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                              <DatePicker fx:id="exitDatePicker" onAction="#computePrice" prefHeight="27.0" prefWidth="138.0" promptText="Exit Date" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                              <ComboBox fx:id="exitTimeHour" onAction="#computePrice" prefWidth="70.0" promptText="Hr" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                              <ComboBox fx:id="exitTimeMinute" onAction="#computePrice" prefWidth="70.0" promptText="Min" style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                          </children>
+                      </HBox>
+
+                      <!-- Slot Type and Availability -->
+                      <HBox alignment="CENTER_LEFT" spacing="10.0">
+                          <children>
+                              <Label prefWidth="100.0" style="-fx-font-weight: bold;" text="SLOT TYPE:">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                              <ComboBox fx:id="slotTypeComboBox" onAction="#computePrice" prefWidth="250.0" promptText="Select slot type..." style="-fx-background-color: transparent; -fx-border-color: #4b614d;" />
+                        <Pane prefHeight="27.0" prefWidth="55.0" />
+                              <Label fx:id="availableSpacesLabel" style="-fx-background-color: transparent;" text="Available Spaces: N/A">
+                           <font>
+                              <Font size="14.0" />
+                           </font></Label>
+                          </children>
+                      </HBox>
+
+                      <!-- Entry Time -->
+                      <HBox alignment="CENTER_LEFT" prefHeight="322.0" prefWidth="859.0" spacing="10.0">
+                          <VBox.margin>
+                              <Insets top="20.0" />
+                          </VBox.margin>
+                      </HBox>
+                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                     <left>
+                         <!-- NEW: VBox for price breakdown -->
+                         <VBox spacing="5.0" style="-fx-background-color: transparent; -fx-padding: 8; -fx-border-width: 1;">
+                             <children>
+                                 <Label fx:id="hourlyRateLabel" text="Hourly Rate: ₱0.00">
+                                     <font>
+                                         <Font size="14.0" />
+                                     </font>
+                                 </Label>
+                                 <Label fx:id="totalHoursLabel" text="Total Hours: 0">
+                                     <font>
+                                         <Font size="14.0" />
+                                     </font>
+                                 </Label>
+                                 <Label fx:id="computedPriceLabel" text="TOTAL PRICE: ₱0.00">
+                                     <font>
+                                         <Font name="System Bold" size="16.0" />
+                                     </font>
+                                     <VBox.margin>
+                                         <Insets top="10.0" />
+                                     </VBox.margin>
+                                 </Label>
+                             </children>
+                         </VBox>
+                     </left>
+                     <right>
+                              <Button fx:id="proceedToPaymentButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #4b614d; -fx-text-fill: white; -fx-font-weight: bold;" text="Proceed to Payment" BorderPane.alignment="CENTER">
+                                  <font>
+                                      <Font size="14.0" />
+                                  </font>
+                              </Button>
+                     </right>
+                  </BorderPane>
+                  </children>
+              </VBox>
+         </center></BorderPane>
+    </children>
+</AnchorPane>
