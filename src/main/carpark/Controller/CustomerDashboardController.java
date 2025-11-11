@@ -97,16 +97,6 @@ public class CustomerDashboardController {
             Parent root = FXMLLoader.load(fxmlUrl);
             Scene scene = new Scene(root);
 
-            // 4. Apply CSS if it exists
-            try {
-                URL cssUrl = Thread.currentThread().getContextClassLoader().getResource("css/styles.css");
-                if (cssUrl != null) {
-                    scene.getStylesheets().add(cssUrl.toExternalForm());
-                }
-            } catch (Exception e) {
-                System.err.println("Error loading CSS for login scene: " + e.getMessage());
-            }
-
             stage.setScene(scene);
             stage.show();
 
