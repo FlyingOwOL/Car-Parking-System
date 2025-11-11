@@ -16,10 +16,11 @@ import java.util.Optional;
 public class CustomerDAO {
 
     // === SQL QUERIES ===
+    private static final String INSERT_CUSTOMER = "INSERT INTO customers (user_ID, firstname, surname, contact_number) VALUES (?, ?, ?, ?)";
     private static final String SELECT_CUSTOMER_BY_USER_ID = "SELECT * FROM customers WHERE user_ID = ?";
     private static final String SELECT_BY_CUSTOMER_ID = "SELECT * FROM customers WHERE customer_ID = ?";
-    private static final String INSERT_CUSTOMER = "INSERT INTO customers (user_ID, firstname, surname, contact_number) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_CUSTOMER = "UPDATE customers SET firstname = ?, surname = ?, contact_number = ? WHERE customer_ID = ?";
+    private static final String DELETE_CUSTOMER = "DELETE from customers WHERE customer_ID = ?";
 
     /**
      * Retrieves a customer profile by its associated user_ID.
@@ -119,6 +120,7 @@ public class CustomerDAO {
             }
         } catch (SQLException e) {
             System.err.println("CustomerDAO Error in addCustomer: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
@@ -149,6 +151,34 @@ public class CustomerDAO {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("CustomerDAO Error in updateCustomer: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps, null);
+        }
+    }
+
+    /**
+     * Deletes an existing customer account.
+     *
+     * @param customerID Unique identifier of the customer.
+     * @return true if delete is successful, false otherwise.
+     */
+    public boolean deleteCustomer(int customerID) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(DELETE_CUSTOMER);
+
+            ps.setInt(1, customerID);
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("CustomerDAO Error in deleteCustomer: " + e.getMessage());
+            e.printStackTrace();
             return false;
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, null);
