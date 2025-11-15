@@ -12,6 +12,7 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
 ## Contents
 - [Overview](#overview)
 - [Program Structure](#program-structure)
+- [Running on CMD](#running-on-cmd)
 - [Group Members](#group-members)
 
 ## Overview
@@ -43,6 +44,11 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
     |           |
     |           └──sql/                 # SQL querries
     └──test/                            # testcases 
+```
+
+## Running on CMD
+```
+javac src/main/carpark/Main.java 
 ```
 
 ## Group Members
