@@ -6,7 +6,6 @@
 <?import javafx.scene.text.*?>
 
 <!-- This page is loaded into the <center> of the customer dashboard -->
-
 <AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReservationPageController">
     <children>
       <BorderPane prefHeight="698.0" prefWidth="1200.0">

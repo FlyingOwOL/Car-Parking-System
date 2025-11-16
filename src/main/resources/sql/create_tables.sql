@@ -103,6 +103,8 @@ CREATE TABLE `reservations` (
     expected_time_in DATETIME,
     check_in_time DATETIME,
     time_Out DATETIME,
+    dateReserved DATETIME NOT NULL,
+    status ENUM ('Active', 'Completed', 'Cancelled', 'No-Show') NOT NULL,
 
     PRIMARY KEY(transact_ID),
     FOREIGN KEY(vehicle_ID) REFERENCES `vehicles`(`vehicle_ID`)
@@ -121,12 +123,9 @@ CREATE TABLE `payments` (
     payment_date DATETIME,
     payment_status ENUM('Pending', 'Paid', 'Refunded') NOT NULL,
     mode_of_payment ENUM('Cash', 'E-wallet', 'Credit Card'),
-    processed_by INT(11) NOT NULL,
 
     PRIMARY KEY(payment_ID),
     FOREIGN KEY(transact_ID) REFERENCES `reservations`(`transact_ID`)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(processed_by) REFERENCES `users`(`user_ID`)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Admin.ReportController">
+    <children>
+        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label text="Business Reports">
+                    <font>
+                        <Font name="Britannic Bold" size="24.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="20.0" top="20.0" />
+                    </VBox.margin>
+                </Label>
+
+                <!-- Filter Bar (Applies to all reports) -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 10 20;">
+                    <children>
+                        <Label text="Filter by:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <ComboBox fx:id="monthComboBox" prefWidth="100.0" promptText="Month" style="-fx-background-color: white; -fx-border-color: #4b614d;" />
+                        <ComboBox fx:id="yearComboBox" prefWidth="80.0" promptText="Year" style="-fx-background-color: white; -fx-border-color: #4b614d;" />
+                        <Button mnemonicParsing="false" onAction="#handleGenerateReport" style="-fx-background-color: #4b614d; -fx-text-fill: white;" text="Generate Report" />
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </HBox>
+
+                <TabPane side="TOP" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                    <tabs>
+                        <!-- REPORT 1: Occupancy Report -->
+                        <Tab style="-fx-background-color: white;" text="Occupancy">
+                            <content>
+                                <AnchorPane style="-fx-padding: 10;">
+                                    <children>
+                                        <TableView fx:id="occupancyTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                                <TableColumn fx:id="branchOccColumn" prefWidth="250.0" text="Branch" />
+                                                <TableColumn fx:id="maxSlotsColumn" prefWidth="150.0" text="Max Slots" />
+                                                <TableColumn fx:id="occupiedCountColumn" prefWidth="150.0" text="Occupied Count" />
+                                                <TableColumn fx:id="occupancyPercentColumn" prefWidth="180.0" text="Occupancy %" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+
+                        <!-- REPORT 2: Revenue Report -->
+                        <Tab style="-fx-background-color: white;" text="Revenue">
+                            <content>
+                                <AnchorPane style="-fx-padding: 10;">
+                                    <children>
+                                        <TableView fx:id="revenueTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                                <TableColumn fx:id="branchRevColumn" prefWidth="250.0" text="Branch" />
+                                                <TableColumn fx:id="totalRevenueColumn" prefWidth="180.0" text="Total Revenue (₱)" />
+                                                <TableColumn fx:id="avgPaymentColumn" prefWidth="180.0" text="Avg. Payment (₱)" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+
+                        <!-- REPORT 3: Parking Duration Report (RUBIA) -->
+                        <Tab style="-fx-background-color: white;" text="Avg. Duration">
+                            <content>
+                                <AnchorPane style="-fx-padding: 10;">
+                                    <children>
+                                        <TableView fx:id="durationTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                                <TableColumn fx:id="branchDurColumn" prefWidth="250.0" text="Branch" />
+                                                <TableColumn fx:id="avgDurationColumn" prefWidth="180.0" text="Avg. Duration (Hours)" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+
+                        <!-- REPORT 4: Slot Utilization Report (TENORIO) -->
+                        <Tab style="-fx-background-color: white;" text="Slot Utilization">
+                            <content>
+                                <AnchorPane style="-fx-padding: 10;">
+                                    <children>
+                                        <TableView fx:id="utilizationTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                                <TableColumn fx:id="slotTypeUtilColumn" prefWidth="250.0" text="Slot Type" />
+                                                <TableColumn fx:id="reservationCountColumn" prefWidth="180.0" text="Reservation Count" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+                <Label fx:id="statusLabel" textFill="RED" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" />
+                    </padding>
+                </Label>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

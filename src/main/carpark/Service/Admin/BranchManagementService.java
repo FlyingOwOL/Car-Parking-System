@@ -1,7 +1,14 @@
 package Service.Admin;
 
+import DAO.DBConnectionUtil;
 import DAO.ParkingDAO;
+import Model.Entity.*;
 import Service.UserService;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Optional;
 
 
 /**
@@ -14,6 +21,22 @@ public class BranchManagementService {
     private final ParkingDAO parkingDAO;
     private final UserService userService;
 
+    // Constants for multi-level slot generation ---
+    private static final int CAR_SLOTS_PER_FLOOR = 40;
+    private static final int MOTORCYCLE_SLOTS_PER_FLOOR = 20;
+    private static final int SLOTS_PER_FLOOR = CAR_SLOTS_PER_FLOOR + MOTORCYCLE_SLOTS_PER_FLOOR; // 60
+
+    // Ratios *within* 40 car slots
+    private static final double PWD_RATIO = 0.10; // 10% of 40 = 4 slots
+    private static final double VIP_RATIO = 0.10; // 10% of 40 = 4 slots
+    // Remainder (85%) will be REGULAR
+
+    // These rates will be applied to every new branch automatically.
+    private static final BigDecimal REGULAR_RATE = new BigDecimal("50.00");
+    private static final BigDecimal PWD_RATE = new BigDecimal("40.00");
+    private static final BigDecimal MOTORCYCLE_RATE = new BigDecimal("30.00");
+    private static final BigDecimal VIP_RATE = new BigDecimal("100.00");
+
     /**
      * Constructor initializes DAO and Service dependencies.
      */
@@ -22,58 +45,124 @@ public class BranchManagementService {
         this.userService = new UserService();
     }
 
-    /*
-    private void checkAdmin(User user) throws AuthorizationException{
+    private void authorizeAdmin(User user) throws SecurityException{
         if (!userService.isAdmin(user)) {
-            throw new AuthorizationException("Access Denied: User does not have administrative privilage")
+            throw new SecurityException("Access Denied: User does not have administrative privilage");
         }
     }
 
     public int createNewBranch(User admin, Branch newBranch) {
-        checkAdmin(admin);
+        authorizeAdmin(admin);
+        Connection conn = null;
+        int newBranchId = -1;
 
         try {
-            //Check if branch name/email already exists
+            conn = DBConnectionUtil.getConnection();
+            conn.setAutoCommit(false);
 
-            //TODO: ParkingDAO.insertBranch()
-            //int branchID = parkingDAO.insertBranch();
+            newBranchId = parkingDAO.insertBranch(newBranch);
 
-            int branchID = 1;
+            if (newBranchId > 0) {
+                int totalSlotsToCreate = newBranch.getMax_slots();
 
-            if (branchId <= 0) {
-                throw new ServiceException("Failed to create new branch in the database.");
+                for (int i = 0; i < totalSlotsToCreate; i++) {
+                    int currentFloor = (i / SLOTS_PER_FLOOR) + 1;
+                    int slotIndexOnFloor = i % SLOTS_PER_FLOOR;
+
+                    String spotID;
+                    SlotType slotType;
+
+                    if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR) {
+                        spotID = currentFloor + "A" + String.format("%02d", slotIndexOnFloor + 1);
+
+                        // Assign type based on ratio *within* the 40 car slots
+                        if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR * PWD_RATIO) {
+                            slotType = SlotType.PWD;
+                        } else if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR * (PWD_RATIO + VIP_RATIO)) {
+                            slotType = SlotType.VIP;
+                        } else {
+                            slotType = SlotType.REGULAR;
+                        }
+                    } else {
+                        int motorcycleSlotNumber = (slotIndexOnFloor - CAR_SLOTS_PER_FLOOR) + 1;
+                        spotID = currentFloor + "M" + String.format("%02d", motorcycleSlotNumber);
+                        slotType = SlotType.MOTORCYCLE;
+                    }
+
+                    ParkingSlot newSlot = new ParkingSlot(spotID, newBranchId, currentFloor, slotType);
+
+                    if (!parkingDAO.insertSlot(newSlot, conn)) {
+                        throw new SQLException("Failed to insert slot " + spotID + ". Rolling back transaction.");
+                    }
+                }
+
+                // Regular
+                parkingDAO.insertOrUpdatePricing(new Pricing(newBranchId, SlotType.REGULAR, REGULAR_RATE, REGULAR_RATE.multiply(new BigDecimal("1.5"))));
+                // PWD
+                parkingDAO.insertOrUpdatePricing(new Pricing(newBranchId, SlotType.PWD, PWD_RATE, PWD_RATE.multiply(new BigDecimal("1.5"))));
+                // Motorcycle
+                parkingDAO.insertOrUpdatePricing(new Pricing(newBranchId, SlotType.MOTORCYCLE, MOTORCYCLE_RATE, MOTORCYCLE_RATE.multiply(new BigDecimal("1.5"))));
+                // VIP
+                parkingDAO.insertOrUpdatePricing(new Pricing(newBranchId, SlotType.VIP, VIP_RATE, VIP_RATE.multiply(new BigDecimal("1.5"))));
+
+                conn.commit();
+                return newBranchId;
             }
-            return branchID;
-        } catch (Exception e) {
-            throw new ServiceException("Error during branch creation: " + e.getMessage())
+
+            conn.rollback();
+            return -1;
+
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.err.println("BranchManagementService Rollback failed: " + rollbackEx.getMessage());
+            }
+            System.err.println("BranchManagementService Transaction Error: " + e.getMessage());
+            return -1;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    DBConnectionUtil.closeConnection(conn);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error restoring connection state: " + e.getMessage());
+            }
         }
     }
 
-    public boolean updateSlotType(User admin, String spotId, SlotType newType) throws AuthorizationException, ServiceException {
-        checkAdmin(admin); // Mandatory Security Check (Task 2.5)
-
-        // 1. Business Rule: Check if the slot is available before changing its type
-        // In a full implementation, you'd need a DAO method to check slot occupancy by ID.
-        // --- Placeholder for Business Rule Check ---
-        boolean isOccupied = false;
-        if (isOccupied) {
-            throw new ServiceException("Cannot change slot type: Spot ID " + spotId + " is currently occupied.");
-        }
-        // --- End Placeholder ---
-
+    public boolean setPricing(User admin, Pricing newPricing) {
         try {
-            // Note: LocationDAO.updateSlotType() is a method that needs to be implemented in LocationDAO.java
-            // return locationDAO.updateSlotType(spotId, newType);
-
-            // --- Placeholder for actual implementation ---
-            System.out.println("BranchManagementService: Updated " + spotId + " to type " + newType);
-            return true;
-            // --- End Placeholder ---
-
-        } catch (Exception e) {
-            throw new ServiceException("Error updating slot type for " + spotId + ": " + e.getMessage());
+            authorizeAdmin(admin);
+            return parkingDAO.insertOrUpdatePricing(newPricing);
+        } catch (SecurityException e) {
+            System.err.println(e.getMessage());
+            return false;
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            return false;
         }
     }
 
-    */
+    public boolean updateSlotType(User admin, String spotId, SlotType newType) {
+        try {
+
+            authorizeAdmin(admin);
+
+            Optional<ParkingSlot> slotOpt = parkingDAO.getSlotByID(spotId);
+            if (slotOpt.isPresent() && !slotOpt.get().isAvailability()) {
+                System.err.println("Cannot change type: Slot " + spotId + " is currently occupied");
+                return false;
+            }
+
+            return parkingDAO.updateSlotType(spotId, newType);
+        } catch (SecurityException e) {
+            System.err.println(e.getMessage());
+            return false;
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+    }
 }

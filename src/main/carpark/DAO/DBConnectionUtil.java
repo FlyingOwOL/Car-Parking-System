@@ -11,7 +11,7 @@ public class DBConnectionUtil {
     private static final String DB_URL_PROPERTY = "db.url";
     private static final String DB_USER_PROPERTY = "db.user";
     private static final String DB_PASSWORD_PROPERTY = "db.password";
-    private static final String PROPERTIES_FILE = "main\\resources\\db.properties";
+    private static final String PROPERTIES_FILE = "db.properties";
 
     private static Properties properties = new Properties();
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Admin.AdminDashboardController">
+    <top>
+        <!-- HEADER/NAVIGATION BAR -->
+        <HBox alignment="CENTER_LEFT" prefHeight="68.0" prefWidth="1200.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
+            <children>
+            <Label contentDisplay="CENTER" prefHeight="36.0" prefWidth="450.0" style="-fx-alignment: center;" text="CARPARK.io" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP">
+               <font>
+                  <Font name="Britannic Bold" size="36.0" />
+               </font>
+            </Label>
+                <Pane prefHeight="68.0" prefWidth="208.0" />
+                <Button fx:id="branchesButton" mnemonicParsing="false" onAction="#handleBranchesClick" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="BRANCHES" textAlignment="CENTER">
+                    <font>
+                        <Font name="Times New Roman Bold" size="16.0" />
+                    </font>
+                </Button>
+                <Pane layoutX="431.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
+                <Button fx:id="reportsButton" layoutX="456.0" layoutY="32.0" mnemonicParsing="false" onAction="#handleReportsClick" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="REPORTS" textAlignment="CENTER">
+                    <font>
+                        <Font name="Times New Roman Bold" size="16.0" />
+                    </font>
+                </Button>
+                <Pane layoutX="579.0" layoutY="10.0" prefHeight="68.0" prefWidth="25.0" />
+                <Button fx:id="usersButton" layoutX="604.0" layoutY="32.0" mnemonicParsing="false" onAction="#handleUsersClick" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="USERS" textAlignment="CENTER">
+                    <font>
+                        <Font name="Times New Roman Bold" size="16.0" />
+                    </font>
+                </Button>
+
+                <!-- Spacer to push Account menu to the right -->
+                <Pane prefHeight="68.0" prefWidth="66.0" HBox.hgrow="ALWAYS" />
+
+                <MenuButton fx:id="accountButton" mnemonicParsing="false" style="-fx-background-color: #4b614d; -fx-cursor: hand;" text="ACCOUNT" textFill="WHITE">
+                    <items>
+                        <MenuItem fx:id="profileMenuItem" mnemonicParsing="false" onAction="#handleProfileClick" text="PROFILE" />
+                        <MenuItem fx:id="logoutMenuItem" mnemonicParsing="false" onAction="#handleLogoutClick" text="LOG OUT" />
+                    </items>
+                    <font>
+                        <Font name="Times New Roman Bold" size="16.0" />
+                    </font>
+                </MenuButton>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- CONTENT PLACEHOLDER -->
+    <center>
+        <AnchorPane fx:id="mainContentArea" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #FFFFFF;" />
+    </center>
+
+    <!-- FOOTER -->
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="40.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Admin Control Panel - © 2025 Car Park System" textFill="WHITE">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

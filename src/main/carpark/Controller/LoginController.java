@@ -101,7 +101,7 @@ public class LoginController {
         // 1. Check the user's role
         if (userService.isAdmin(user)) {
             // Admin Role (Task 4.4)
-            fxmlPath = "/fxml/admin_panel.fxml"; // Path to Admin Dashboard
+            fxmlPath = "/fxml/admin_dashboard.fxml"; // Path to Admin Dashboard
         } else {
             // Customer Role
             fxmlPath = "/fxml/customer_dashboard.fxml"; // Path to Customer Dashboard

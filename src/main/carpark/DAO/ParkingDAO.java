@@ -6,10 +6,7 @@ import Model.Entity.Pricing;
 import Model.Entity.SlotType;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +20,9 @@ public class ParkingDAO {
 
     // === SQL QUERIES ===
     private static final String SELECT_AVAILABLE_SLOTS =
-            "SELECT spot_ID, branch_ID, floor_level, slot_type, availability FROM parking_slots " +
-                    "WHERE availability = TRUE AND branch_ID = ? AND slot_type = ?";
+            "SELECT * FROM parking_slots WHERE availability = TRUE AND branch_ID = ? AND slot_type = ?";
     private static final String UPDATE_SLOT_AVAILABILITY =
-            "UPDATE parking_slots SELECT availability = ? WHERE spot_ID = ?";
+            "UPDATE parking_slots SET availability = ? WHERE spot_ID = ?";
 
     // --- Pricing Rule ---
     private static final String SELECT_PRICING_RULE =
@@ -36,6 +32,17 @@ public class ParkingDAO {
     // --- Branch Queries ---
     private static final String SELECT_ALL_BRANCHES =
             "SELECT branch_ID, name, contact_number, email, max_slots, location, opening_time, closing_time FROM branches";
+    private static final String INSERT_BRANCH =
+            "INSERT INTO branches (name, contact_number, email, max_slots, location, opening_time, closing_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SLOT =
+            "INSERT INTO parking_slots (spot_ID, branch_ID, floor_level, slot_type, availability) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPSERT_PRICING =
+            "INSERT INTO pricing (branch_ID, slot_type, hourly_rate, overtime_rate) VALUES (?, ?, ?, ?)" +
+                    "ON DUPLICATE KEY UPDATE hourly_rate = VALUES(hourly_rate), overtime_rate = VALUES(overtime_rate)";
+    private static final String SELECT_SLOT_BY_ID =
+            "SELECT * FROM parking_slots WHERE slot_ID = ?";
+    private static final String UPDATE_SLOT_TYPE =
+            "UPDATE parking_slots SET slot_type = ? WHERE slot_ID = ?";
 
     private ParkingSlot mapRowToParkingSlot(ResultSet rs) throws SQLException {
         String spotId = rs.getString("spot_ID");
@@ -168,7 +175,6 @@ public class ParkingDAO {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                // Map Branch attributes (including LocalTime)
                 int branchId = rs.getInt("branch_ID");
                 String name = rs.getString("name");
                 String contactNumber = rs.getString("contact_number");
@@ -188,4 +194,122 @@ public class ParkingDAO {
         }
         return branches;
     }
+
+    public boolean insertSlot(ParkingSlot slot, Connection conn) throws SQLException {
+        PreparedStatement ps = null;
+        try {
+            // Use the shared connection, DO NOT close it here
+            ps = conn.prepareStatement(INSERT_SLOT);
+            ps.setString(1, slot.getSpot_ID());
+            ps.setInt(2, slot.getBranch_ID());
+            ps.setInt(3, slot.getFloor_level());
+            ps.setString(4, slot.getSlot_type().name());
+            ps.setBoolean(5, slot.isAvailability());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("ParkingDAO Error in insertSlot: " + e.getMessage());
+            throw e;
+        } finally {
+            if (ps != null) ps.close();
+        }
+    }
+
+    /**
+     * Inserts a new Branch into the database.
+     * @param branch The Branch object to insert (ID will be ignored).
+     * @return true if successful.
+     */
+    public int insertBranch(Branch branch) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int generatedID = -1;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(INSERT_BRANCH, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, branch.getName());
+            ps.setString(2, branch.getContact_number());
+            ps.setString(3, branch.getEmail());
+            ps.setInt(4, branch.getMax_slots());
+            ps.setString(5, branch.getLocation());
+            ps.setObject(6, branch.getOpening_time());
+            ps.setObject(7, branch.getClosing_time());
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedID = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("parkingDAO Error in insertBranch: " + e.getMessage());
+            throw e;
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
+        return generatedID;
+    }
+
+    public boolean insertOrUpdatePricing(Pricing rule) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(UPSERT_PRICING);
+            ps.setInt(1, rule.getBranch_ID());
+            ps.setString(2, rule.getSlot_type().name());
+            ps.setBigDecimal(3, rule.getHourly_rate());
+            ps.setBigDecimal(4, rule.getOvertime_rate());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("parkingDAO Error in insertOrUpdatePricing: " + e.getMessage());
+            throw e;
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
+    }
+
+    public Optional<ParkingSlot> getSlotByID(String spotID) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(SELECT_SLOT_BY_ID);
+            ps.setString(1, spotID);
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapRowToParkingSlot(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("parkingDAO Error in insertOrUpdatePricing: " + e.getMessage());
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
+        return Optional.empty();
+    }
+
+    public boolean updateSlotType(String spotID, SlotType newType) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(UPDATE_SLOT_TYPE);
+            ps.setString(1, newType.name());
+            ps.setString(2, spotID);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("parkingDAO Error in updateSlotType: " + e.getMessage());
+            throw e;
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
+    }
+
+
 }

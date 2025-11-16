@@ -80,10 +80,6 @@ public class ReservationPageController {
         // 5. Set default times
         entryDatePicker.setValue(LocalDate.now());
         exitDatePicker.setValue(LocalDate.now().plusDays(1));
-        entryTimeHour.setValue(LocalTime.now().getHour());
-        entryTimeMinute.setValue(0);
-        exitTimeHour.setValue(LocalTime.now().getHour());
-        exitTimeMinute.setValue(0);
 
         // 6. Add listener to update available spaces
         slotTypeComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> updateAvailableSpaces());

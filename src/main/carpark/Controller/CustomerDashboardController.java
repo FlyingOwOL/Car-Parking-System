@@ -61,7 +61,7 @@ public class CustomerDashboardController {
     @FXML
     private void handleProfileClick(ActionEvent event) {
         System.out.println("Profile clicked");
-        loadPage("/fxml/account_page.fxml");
+        //loadPage("/fxml/account_page.fxml");
     }
 
     @FXML
