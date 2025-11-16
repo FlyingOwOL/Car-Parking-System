@@ -12,12 +12,13 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
 ## Contents
 - [Overview](#overview)
 - [Program Structure](#program-structure)
+- [Running on CMD](#running-on-cmd)
 - [Group Members](#group-members)
 
 ## Overview
 - This project simulates a car parking system in the real world using Java as the main programming language <br>
-  and SQL as the database connected via JDBC. 
-- This project is for a CCINFOM database application project 1st term, AY 2025-2026.  
+  and SQL as the database connected via JDBC.
+- This project is for a CCINFOM database application project 1st term, AY 2025-2026.
 
 
 ## Program Structure
@@ -45,8 +46,13 @@ https://app.diagrams.net/?src=about#G1xpfOmugVj2OvTp-qq7Co3_1lnByPGkN7#%7B%22pag
     └──test/                            # testcases 
 ```
 
+## Running on CMD
+```
+javac src/main/carpark/Main.java 
+```
+
 ## Group Members
-- Miral, Regina Frances L. 
+- Miral, Regina Frances L.
 - Rubia, Kyle Dominique B.
 - Sy, Jason Mark Lester B.
 - Tenorio, Jeroen Ralph I.
