@@ -84,6 +84,7 @@ public class Reservation {
     public LocalDateTime getDateReserved()   {return this.dateReserved;}
     public boolean       isAdvanceReserve()  {return this.isAdvanceReserve;}
     public String        getStatus()         {return this.status;}
+    public LocalDateTime getTimeOut()        {return this.checkOutTime;}
 
     public LocalDateTime getCheckInTime(){
        if (isAdvanceReserve()){
@@ -92,9 +93,7 @@ public class Reservation {
             return this.checkInTime;
        }
     }
-    public LocalDateTime getTimeOut(){
-        return this.checkOutTime;
-    }
+    
     public int getReserved_hours() {
         if (checkInTime != null && 
             checkOutTime != null && 
@@ -109,5 +108,8 @@ public class Reservation {
     // Use to update reservations
     public void setCheckOutTime (LocalDateTime checkOut){
         this.checkOutTime = checkOut;
+    }
+    public void setID(int ID){
+        this.reservation_ID = ID;
     }
 }
