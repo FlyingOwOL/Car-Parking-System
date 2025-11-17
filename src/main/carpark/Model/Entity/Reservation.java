@@ -35,4 +35,7 @@ public class Reservation {
     public LocalDateTime getTimeOut(){
         return LocalDateTime.now();
     }
+    public int getReserved_hours(){
+        return 0;
+    }
 }
