@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Admin.UserManagementController">
+    <children>
+        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label text="System User Management">
+                    <font>
+                        <Font name="Britannic Bold" size="24.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="20.0" top="20.0" />
+                    </VBox.margin>
+                </Label>
+
+                <!-- User Table -->
+                <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="75.0" text="User ID" />
+                        <TableColumn fx:id="emailColumn" prefWidth="250.0" text="Email / Username" />
+                        <TableColumn fx:id="roleColumn" prefWidth="150.0" text="Role" />
+                        <TableColumn fx:id="joinDateColumn" prefWidth="150.0" text="Join Date" />
+                        <!-- Add admin-specific columns (Name, Branch) here, requiring a JOIN -->
+                    </columns>
+                </TableView>
+
+                <!-- Control Buttons -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 10 20;">
+                    <children>
+                        <Button fx:id="newAdminButton" mnemonicParsing="false" onAction="#handleNewAdminRegistration" style="-fx-background-color: #4b614d; -fx-text-fill: white;" text="+ Register New Admin" />
+                        <Button mnemonicParsing="false" onAction="#handleDeleteUser" style="-fx-background-color: #c94c4c; -fx-text-fill: white;" text="- Delete User" />
+                    </children>
+                </HBox>
+                <Label fx:id="statusLabel" textFill="RED">
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" />
+                    </padding>
+                </Label>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

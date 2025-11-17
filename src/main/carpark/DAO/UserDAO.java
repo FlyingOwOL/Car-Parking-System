@@ -5,6 +5,8 @@ import Model.Entity.UserRole;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,6 +18,8 @@ public class UserDAO {
     // === SQL QUERIES ===
     private static final String SELECT_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
     private static final String INSERT_USER = "INSERT INTO users (email, password_hash, role, join_date) VALUES (?, ?, ?, ?)";
+    private static final String SELECT_ALL_USERS = "SELECT user_ID, email, password_hash, role, join_date FROM users";
+    private static final String DELETE_USER = "DELETE FROM users WHERE user_ID = ?";
 
     /**
      * Retrieves a User record from the database using their email address.
@@ -102,5 +106,52 @@ public class UserDAO {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
         return Optional.empty();
+    }
+
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        int userId = rs.getInt("user_ID");
+        String email = rs.getString("email");
+        String passwordHash = rs.getString("password_hash");
+        UserRole role = UserRole.valueOf(rs.getString("role").toUpperCase());
+        LocalDate joinDate = rs.getDate("join_date").toLocalDate();
+        return new User(userId, email, passwordHash, role, joinDate);
+    }
+
+    public List<User> findAllUsers() {
+        List<User> userList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(SELECT_ALL_USERS);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                userList.add(mapResultSetToUser(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("UserDAO Error in findAllUsers: " + e.getMessage());
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps, rs);
+        }
+        return userList;
+    }
+
+    public void deleteUser(int userId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(DELETE_USER);
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("UserDAO Error in deleteUser: " + e.getMessage());
+            throw e; // Throw to allow service/controller to catch and report failure
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
     }
 }

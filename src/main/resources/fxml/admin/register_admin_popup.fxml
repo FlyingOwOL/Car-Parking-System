@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefWidth="450.0" spacing="10.0" style="-fx-padding: 20; -fx-background-color: #f4f4f4; -fx-border-color: #ccc; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Admin.AdminRegistrationController">
+    <children>
+        <Label text="Register New System Administrator">
+            <font>
+                <Font name="Britannic Bold" size="18.0" />
+            </font>
+            <VBox.margin>
+                <Insets bottom="5.0" />
+            </VBox.margin>
+        </Label>
+        <Separator prefWidth="200.0" />
+        <Label style="-fx-font-weight: bold;" text="Account &amp; Profile Details" />
+
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Label text="Email (Login):" />
+                <TextField fx:id="emailField" promptText="admin.new@carpark.com" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" />
+                <Label text="Password:" GridPane.rowIndex="1" />
+                <PasswordField fx:id="passwordField" promptText="secure password" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="First Name:" GridPane.rowIndex="3" />
+                <TextField fx:id="firstNameField" promptText="First Name" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Label text="Last Name:" GridPane.rowIndex="4" />
+                <TextField fx:id="lastNameField" promptText="Last Name" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <Label text="Contact No.:" GridPane.rowIndex="5" />
+                <TextField fx:id="contactField" promptText="09XX-XXX-XXXX" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                <Label text="Job Title:" GridPane.rowIndex="7" />
+                <TextField fx:id="jobTitleField" promptText="e.g., Auditor, Manager" style="-fx-border-color: #4b614d;" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                <Label text="Branch:" GridPane.rowIndex="8" />
+                <ComboBox fx:id="branchComboBox" prefHeight="27.0" prefWidth="266.0" promptText="Assign Branch (Optional)" style="-fx-border-color: #4b614d; -fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            </children>
+        </GridPane>
+
+        <Label fx:id="statusLabel" textFill="RED" />
+
+        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+            <children>
+                <Button mnemonicParsing="false" onAction="#handleRegister" style="-fx-background-color: #4b614d; -fx-text-fill: white;" text="Register Admin" />
+                <Button mnemonicParsing="false" onAction="#handleCancel" style="-fx-background-color: #c94c4c; -fx-text-fill: white;" text="Cancel" />
+            </children>
+            <VBox.margin>
+                <Insets top="15.0" />
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>
