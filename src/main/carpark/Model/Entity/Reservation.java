@@ -37,7 +37,8 @@ public class Reservation {
                        int           vehicle_ID, 
                        String        spot_ID, 
                        LocalDateTime checkInTime, 
-                       LocalDateTime checkOutTime){
+                       LocalDateTime checkOutTime,
+                       String        status){
 
         this.reservation_ID = reservation_ID;
         this.branchID       = branchID;
@@ -46,6 +47,7 @@ public class Reservation {
         this.spot_ID        = spot_ID;
         this.checkInTime    = checkInTime;
         this.checkOutTime   = checkOutTime;
+        this.status         = status;
     }
     // Make/Load Reservation with an advance
     public Reservation(int           reservation_ID, 
@@ -57,7 +59,8 @@ public class Reservation {
                        LocalDateTime checkOutTime, 
                        boolean       isAdvanceReserve,
                        LocalDateTime expected_time_in, 
-                       LocalDateTime dateReserved){
+                       LocalDateTime dateReserved,
+                       String        status){
 
         this.reservation_ID   = reservation_ID;
         this.branchID         = branchID;
@@ -68,7 +71,8 @@ public class Reservation {
         this.dateReserved     = dateReserved;
         this.isAdvanceReserve = isAdvanceReserve;
         this.checkInTime      = checkInTime;
-        this.checkOutTime     = checkOutTime;                        
+        this.checkOutTime     = checkOutTime;   
+        this.status           = status;                     
     }
 
     public int           getBranchID()       {return this.branchID;}
