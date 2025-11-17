@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="Controller.PaymentPageController" spacing="20" style="-fx-padding: 25;">
+   
+   <Label text="Complete Payment" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+   
+   <!-- Reservation Details Card -->
+   <VBox spacing="15" style="-fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #f8f9fa; -fx-padding: 20;">
+      <Label text="Reservation Details" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+      
+      <GridPane hgap="15" vgap="10">
+         <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="150"/>
+            <ColumnConstraints minWidth="250"/>
+         </columnConstraints>
+         
+         <!-- Row 0: Reservation ID -->
+         <Label text="Reservation ID:" style="-fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+         <Label fx:id="reservationIdLabel" style="-fx-font-weight: bold; -fx-text-fill: #e74c3c;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+         
+         <!-- Row 1: Branch -->
+         <Label text="Branch Location:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+         <Label fx:id="branchNameLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+         
+         <!-- Row 2: Slot Type -->
+         <Label text="Slot Type:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+         <Label fx:id="slotTypeLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+         
+         <!-- Row 3: Vehicle -->
+         <Label text="Vehicle Plate:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+         <Label fx:id="vehiclePlateLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+         
+         <!-- Row 4: Check-in Time -->
+         <Label text="Check-in Time:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+         <Label fx:id="checkInTimeLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+         
+         <!-- Row 5: Check-out Time -->
+         <Label text="Check-out Time:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+         <Label fx:id="checkOutTimeLabel" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+         
+         <!-- Row 6: Total Hours -->
+         <Label text="Total Hours:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+         <Label fx:id="totalHoursLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+         
+         <!-- Row 7: Hourly Rate -->
+         <Label text="Hourly Rate:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+         <Label fx:id="hourlyRateLabel" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+         
+         <!-- Row 8: Total Amount -->
+         <Label text="Total Amount:" GridPane.rowIndex="8" GridPane.columnIndex="0" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+         <Label fx:id="totalAmountLabel" GridPane.rowIndex="8" GridPane.columnIndex="1" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #27ae60;"/>
+      </GridPane>
+   </VBox>
+   
+   <!-- Payment Method Selection -->
+   <VBox spacing="15" style="-fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-background-color: #f8f9fa; -fx-padding: 20;">
+      <Label text="Select Payment Method" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+      
+      <VBox spacing="10">
+         <RadioButton fx:id="cashRadioButton" text="💵 Cash Payment" style="-fx-font-size: 14;"/>
+         <RadioButton fx:id="ewalletRadioButton" text="📱 E-Wallet (GCash, Maya)" style="-fx-font-size: 14;"/>
+         <RadioButton fx:id="creditCardRadioButton" text="💳 Credit/Debit Card" style="-fx-font-size: 14;"/>
+      </VBox>
+      
+      <!-- Credit Card Details Section -->
+      <VBox fx:id="cardDetailsSection" spacing="10" style="-fx-padding: 15; -fx-border-color: #3498db; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-color: #ebf5fb;">
+         <Label text="Credit Card Details" style="-fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
+         <TextField fx:id="cardNumberField" promptText="Card Number (1234 5678 9012 3456)"/>
+         <HBox spacing="10">
+            <TextField fx:id="expiryDateField" promptText="MM/YY" HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="cvvField" promptText="CVV" HBox.hgrow="ALWAYS"/>
+         </HBox>
+      </VBox>
+      
+      <!-- E-Wallet Details Section -->
+      <VBox fx:id="ewalletDetailsSection" spacing="10" style="-fx-padding: 15; -fx-border-color: #9b59b6; -fx-border-width: 1; -fx-border-radius: 5; -fx-background-color: #f4ecf7;">
+         <Label text="E-Wallet Details" style="-fx-font-weight: bold; -fx-text-fill: #8e44ad;"/>
+         <TextField fx:id="ewalletNumberField" promptText="Mobile Number (0917XXXXXXX)"/>
+         <TextField fx:id="ewalletPinField" promptText="MPIN" style="-fx-font-family: 'Arial';"/>
+      </VBox>
+   </VBox>
+   
+   <!-- Buttons -->
+   <HBox spacing="20" alignment="CENTER">
+      <Button fx:id="backButton" text="← Back to Reservation" onAction="#handleBackBtn" 
+              style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-font-size: 14;"/>
+      <Button fx:id="confirmPaymentButton" text="✅ Confirm Payment" onAction="#handleConfirmationBtn" 
+              style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 30; -fx-font-size: 16;"/>
+   </HBox>
+   
+   <!-- Status Message -->
+   <Label fx:id="statusLabel" style="-fx-font-size: 14; -fx-padding: 10; -fx-alignment: CENTER;"/>
+   
+</VBox>
