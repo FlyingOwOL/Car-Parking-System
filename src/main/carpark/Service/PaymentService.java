@@ -53,7 +53,7 @@ public class PaymentService {
             if (!pricingOpt.isPresent()) { return Optional.empty(); }
             Pricing pricing = pricingOpt.get();
 
-            Double amountToPay = calculateTotalFee(reservation, pricing.getHourlyRate());
+            Double amountToPay = calculateTotalFee(reservation, pricing.getHourly_rate());
 
             Optional<Payment> paymentOpt = PaymentDAO.insertPayment(reservation.getID(), amountToPay, amountToPay, modeOfPayment, admin_ID);
             if (!paymentOpt.isPresent()) { return Optional.empty(); }
