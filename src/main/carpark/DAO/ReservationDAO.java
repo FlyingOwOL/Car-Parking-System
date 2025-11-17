@@ -11,16 +11,16 @@ import Model.Entity.Reservation;
 import Model.Entity.SlotType;
 
 public class ReservationDAO {
-    //TODO: SY
+    // SY
 
     // === SQL QUERRIES === //
     private static final String SELECT_RESERVATION_BY_ID = "SELECT * FROM reservations WHERE transact_ID = ?";
     private static final String UPDATE_RESERVATION       = "UPDATE reservations SET status = ? WHERE transact_ID = ?";
 
 
-    Connection conn = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+    Connection        conn = null;
+    PreparedStatement ps   = null;
+    ResultSet         rs   = null;
     /**
      * 
      * @param reservation_ID
@@ -49,10 +49,10 @@ public class ReservationDAO {
             LocalDateTime expected_time_in = dateChecker(rs.getTimestamp("expected_time_in"));
             LocalDateTime dateReserved     = dateChecker(rs.getTimestamp("dateReserved"));
 
-            Reservation reservation = createReservationInstace(id, branchID, slotType, vehicle_ID, 
-                                                               spot_ID, checkInTime, checkOutTime, 
-                                                               isAdvanceReserve, expected_time_in, 
-                                                               dateReserved, status);
+            Reservation   reservation      = createReservationInstace(id, branchID, slotType, vehicle_ID, 
+                                                                      spot_ID, checkInTime, checkOutTime, 
+                                                                      isAdvanceReserve, expected_time_in, 
+                                                                      dateReserved, status);
             return Optional.of(reservation);
         } catch(SQLException err) {
             System.err.println("ReservationDAO Error in getReservationByID: " + err.getMessage());
@@ -71,16 +71,17 @@ public class ReservationDAO {
     public boolean updateReservationStatus(int reservation_ID, String STATUS_COMPLETED){
         try{
             conn = DBConnectionUtil.getConnection();
-            ps = conn.prepareStatement(UPDATE_RESERVATION);
-
-
+            ps   = conn.prepareStatement(UPDATE_RESERVATION);
+            ps.setInt(1, reservation_ID); 
+            ps.setString(8, STATUS_COMPLETED);      
+            int rowsAffected = ps.executeUpdate();  
+            return rowsAffected > 0;  
         } catch(SQLException err) {
             System.err.println("ReservationDAO Error in updateReservationStatus: " + err.getMessage());
             return false; 
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }        
-        return false;
     }
     //helper functions
     private LocalDateTime dateChecker(java.sql.Timestamp date) {return date != null ? date.toLocalDateTime() : null;}
