@@ -4,10 +4,26 @@ import java.time.LocalDateTime;
 
 public class Reservation {
     //TODO: SY
-    public int getBranchID(){
-        return 0;
+    private int reservation_ID;
+    private int branchID;
+    private SlotType slotType;
+    private int vehicle_ID;
+    private String spot_ID;
+    private LocalDateTime expected_time_in;
+    private LocalDateTime dateReserved;
+    private boolean isAdvanceReserve;
+    private LocalDateTime checkInTime;
+    private LocalDateTime checkOutTime;
+    private String status;
+
+    public Reservation(){
+        
     }
-    public String getSlotType(){
+
+    public int getBranchID(){
+        return this.branchID;
+    }
+    public SlotType getSlotType(){
         return null;
     }
     public int getID(){
