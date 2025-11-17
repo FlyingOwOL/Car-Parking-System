@@ -1,41 +1,33 @@
 package Service;
 
-import DAO.DBConnectionUtil;
 import DAO.ReservationDAO;
 import DAO.ParkingDAO;
 import DAO.PaymentDAO;
+import DAO.DBConnectionUtil;
 
-import Model.Entity.Branch;
 import Model.Entity.Payment;
+import Model.Entity.Payment.PaymentStatus;
+import Model.Entity.Payment.ModeOfPayment;
 import Model.Entity.Reservation;
 import Model.Entity.Pricing;
 
-import javax.swing.text.html.Option;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service layer for payment processing and fee calculation.
+ * Handles payment transactions for parking reservations.
+ */
 public class PaymentService {
-    /*
-    Method: processPayment
-    Transaction 4.3
-    TODO: RUBIA
-    DAO to use: ReservationDAO, ParkingDAO, PaymentDAO
-    1. Start Transaction.
-    2. Retrieve Reservation Data: Call ReservationDAO.getReservationById() (get check_in_time, time_Out, spot_ID).
-    3. Retrieve Pricing Data: Use spot_ID to find the Branch and SlotType, then call ParkingDAO.getPricingRule() to get hourly_rate.
-    4. Calculate Total Fee: Use Java logic to calculate duration, apply hourly/overtime rates, and determine amount_To_Pay.
-    5. Insert Payment: Call PaymentDAO.insertPayment() (must include processed_by Admin ID).
-    6. Finalize Reservation: Call ReservationDAO.updateReservationStatus() to 'Completed'.
-     */
 
-
-    private final ReservationDAO reservationDAO;
-    private final PaymentDAO paymentDAO;
-    private final ParkingDAO parkingDAO;
-
-    private static final String STATUS_COMPLETED = "Completed";
-    private static final String PAYMENT_STATUS_PAID = "Paid";
+    private ReservationDAO reservationDAO;
+    private PaymentDAO paymentDAO;
+    private ParkingDAO parkingDAO;
 
     public PaymentService() {
         this.paymentDAO = new PaymentDAO();
@@ -43,55 +35,247 @@ public class PaymentService {
         this.parkingDAO = new ParkingDAO();
     }
 
-    public Optional<Payment> processPayment(int reservation_ID, int admin_ID) {
-        Optional<Reservation> reservationOpt = reservationDAO.getReservationByID(reservation_ID);
-        if (!reservationOpt.isPresent()) { return Optional.empty(); }
-        Reservation reservation = reservationOpt.get();
+    /**
+     * Processes payment for a completed reservation.
+     * Transaction 4.3 - Creates payment record and updates reservation status.
+     *
+     * @param reservationID The reservation to process payment for
+     * @param modeOfPayment How the customer is paying
+     * @param adminID The admin processing the payment
+     * @return The created Payment object if successful
+     */
+    public Optional<Payment> processPayment(int reservationID, ModeOfPayment modeOfPayment, int adminID) {
+        Connection conn = null;
 
         try {
-            Optional<Pricing> pricingOpt = ParkingDAO.getPricingRule(reservation.getBranchID(), reservation.getSlotType());
-            if (!pricingOpt.isPresent()) { return Optional.empty(); }
+            // Start transaction
+            conn = DBConnectionUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            // Fetch reservation details
+            Optional<Reservation> reservationOpt = reservationDAO.getReservationByID(reservationID);
+
+            if (!reservationOpt.isPresent()) {
+                System.err.println("PaymentService: Reservation not found - " + reservationID);
+                return Optional.empty();
+            }
+
+            Reservation reservation = reservationOpt.get();
+
+            // Get pricing rules
+            Optional<Pricing> pricingOpt = parkingDAO.getPricingRule(
+                    reservation.getBranchID(),
+                    reservation.getSlotType()
+            );
+
+            if (!pricingOpt.isPresent()) {
+                System.err.println("PaymentService: Pricing rule not found");
+                rollbackTransaction(conn);
+                return Optional.empty();
+            }
+
             Pricing pricing = pricingOpt.get();
 
-            Double amountToPay = calculateTotalFee(reservation, pricing.getHourlyRate());
+            // Calculate total fee
+            float totalAmount = calculateTotalFee(reservation, pricing);
 
-            Optional<Payment> paymentOpt = PaymentDAO.insertPayment(reservation.getID(), amountToPay, amountToPay, modeOfPayment, admin_ID);
-            if (!paymentOpt.isPresent()) { return Optional.empty(); }
+            // Create payment record
+            Payment payment = new Payment(
+                    reservation.getID(),
+                    totalAmount,
+                    totalAmount,
+                    LocalDate.now(),
+                    PaymentStatus.PAID,
+                    modeOfPayment,
+                    adminID
+            );
 
-            boolean statusUpdated = reservationDAO.updateReservationStatus(reservation_ID, STATUS_COMPLETED);
-            if (!statusUpdated) { return Optional.empty(); }
+            int paymentId = paymentDAO.insertPayment(payment);
+            if (paymentId <= 0) {
+                System.err.println("PaymentService: Failed to create payment");
+                rollbackTransaction(conn);
+                return Optional.empty();
+            }
 
-            return paymentOpt;
-        } catch (Exception e) {
-            e.printStackTrace();
+            payment.setPayment_ID(paymentId);
+
+            // Update reservation status to completed
+            boolean updated = reservationDAO.updateReservationStatus(reservationID, "Completed");
+
+            if (!updated) {
+                System.err.println("PaymentService: Failed to update reservation status");
+                rollbackTransaction(conn);
+                return Optional.empty();
+            }
+
+            // Commit transaction
+            conn.commit();
+            return Optional.of(payment);
+
+        } catch (SQLException e) {
+            System.err.println("PaymentService Error: " + e.getMessage());
+            rollbackTransaction(conn);
             return Optional.empty();
+        } finally {
+            closeConnection(conn);
         }
-
-        return Optional.empty();
     }
 
-    public Double calculateTotalFee(Reservation reservation, Double hourlyRate) {
+    /**
+     * Calculates the total parking fee based on duration.
+     * Uses hourly rate for reserved time and overtime rate if customer exceeds reservation.
+     *
+     * @param reservation Contains check-in, check-out times, and reserved hours
+     * @param pricing Contains the pricing rates
+     * @return Total calculated fee
+     */
+    public float calculateTotalFee(Reservation reservation, Pricing pricing) {
         LocalDateTime checkIn = reservation.getCheckInTime();
-        LocalDateTime timeOut = reservation.getTimeOut();
+        LocalDateTime checkOut = reservation.getTimeOut();
+        int reservedHours = reservation.getReserved_hours();
 
-        if (checkIn == null || timeOut == null || hourlyRate == null || hourlyRate <= 0) {
-            return 0.0;
+        if (checkIn == null || checkOut == null) {
+            return 0.0f;
         }
 
-        if (checkIn.isBefore(timeOut)) { return 0.0; }
+        // Check if times are valid
+        if (checkIn.isAfter(checkOut) || checkIn.isEqual(checkOut)) {
+            System.err.println("PaymentService: Invalid parking duration");
+            return 0.0f;
+        }
 
-        Duration duration = Duration.between(checkIn, timeOut);
-
+        // Calculate actual duration in hours (rounded up)
+        Duration duration = Duration.between(checkIn, checkOut);
         long minutes = duration.toMinutes();
-        long billedHours = (minutes + 59) / 60;
+        long actualHours = (minutes + 59) / 60; // Round up to nearest hour
 
-        Double totalFee = hourlyRate * billedHours;
+        if (actualHours == 0) {
+            actualHours = 1; // Default
+        }
 
-        return Math.round(totalFee * 100.0) / 100.0;
+        float total;
+
+        // Check if customer stayed longer than reserved duration
+        if (actualHours <= reservedHours) {
+            total = pricing.getHourly_rate().floatValue() * actualHours;
+        } else {
+            float standardFee = pricing.getHourly_rate().floatValue() * reservedHours;
+            long overtimeHours = actualHours - reservedHours;
+            float overtimeFee = pricing.getOvertime_rate().floatValue() * overtimeHours;
+
+            total = standardFee + overtimeFee;
+        }
+
+        return Math.round(total * 100) / 100.0f;
     }
 
+    /**
+     * Processes a refund for a cancelled or disputed payment.
+     * Updates payment status to REFUNDED.
+     *
+     * @param paymentID The payment to refund
+     * @param adminID The admin processing the refund
+     * @return true if refund was successful
+     */
+    public boolean processRefund(int paymentID, int adminID) {
+        Connection conn = null;
 
+        try {
+            conn = DBConnectionUtil.getConnection();
+            conn.setAutoCommit(false);
 
+            // Get the payment
+            Optional<Payment> paymentOpt = paymentDAO.getPaymentById(paymentID);
 
+            if (!paymentOpt.isPresent()) {
+                System.err.println("PaymentService: Payment not found - " + paymentID);
+                return false;
+            }
 
+            Payment payment = paymentOpt.get();
+
+            // Check if payment can be refunded
+            if (payment.getPayment_status() == PaymentStatus.REFUNDED) {
+                System.err.println("PaymentService: Payment already refunded");
+                return false;
+            }
+
+            if (payment.getPayment_status() != PaymentStatus.PAID) {
+                System.err.println("PaymentService: Cannot refund unpaid payment");
+                return false;
+            }
+
+            // Update payment status to refunded
+            boolean updated = paymentDAO.updatePaymentStatus(paymentID, PaymentStatus.REFUNDED);
+            if (!updated) {
+                System.err.println("PaymentService: Failed to update payment status");
+                rollbackTransaction(conn);
+                return false;
+            }
+
+            // update reservation status back to cancelled
+            // reservationDAO.updateReservationStatus(payment.getTransact_ID(), "Cancelled");
+
+            conn.commit();
+            System.out.println("PaymentService: Refund processed for payment " + paymentID);
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("PaymentService Error in processRefund: " + e.getMessage());
+            rollbackTransaction(conn);
+            return false;
+        } finally {
+            closeConnection(conn);
+        }
+    }
+
+    /**
+     * Gets a payment by the paymentID.
+     */
+    public Optional<Payment> getPaymentById(int paymentID) {
+        return paymentDAO.getPaymentById(paymentID);
+    }
+
+    /**
+     * Gets all payments for a specific transaction.
+     */
+    public List<Payment> getPaymentsByTransaction(int transactID) {
+        return paymentDAO.getPaymentsByTransactionId(transactID);
+    }
+
+    /**
+     * Updates payment status (for corrections or status changes).
+     */
+    public boolean updatePaymentStatus(int paymentID, PaymentStatus newStatus) {
+        return paymentDAO.updatePaymentStatus(paymentID, newStatus);
+    }
+
+    // === HELPER METHODS ===
+
+    /**
+     * Rolls back the current transaction if something goes wrong.
+     */
+    private void rollbackTransaction(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.rollback();
+            } catch (SQLException e) {
+                System.err.println("Rollback failed: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Closes the database connection and resets auto-commit.
+     */
+    private void closeConnection(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.setAutoCommit(true);
+                conn.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }
 }
