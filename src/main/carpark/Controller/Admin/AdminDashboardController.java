@@ -24,7 +24,6 @@ public class AdminDashboardController {
     @FXML private Button reportsButton;
     @FXML private Button usersButton;
     @FXML private MenuButton accountButton;
-    @FXML private MenuItem profileMenuItem;
     @FXML private MenuItem logoutMenuItem;
 
     @FXML private AnchorPane mainContentArea;
@@ -61,13 +60,7 @@ public class AdminDashboardController {
     @FXML
     private void handleUsersClick(ActionEvent event) {
         System.out.println("Manage Users clicked.");
-        loadPage("/fxml/admin/user_management_page.fxml"); // TODO: Create this FXML
-    }
-
-    @FXML
-    private void handleProfileClick(ActionEvent event) {
-        System.out.println("Admin Profile clicked.");
-        loadPage("/fxml/admin/admin_profile_page.fxml"); // TODO: Create this FXML
+        loadPage("/fxml/admin/user_management_page.fxml");
     }
 
     @FXML

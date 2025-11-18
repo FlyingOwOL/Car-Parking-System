@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Entity.Reservation;
 import Utilities.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -109,6 +110,26 @@ public class CustomerDashboardController {
         } catch (NullPointerException e) {
             System.err.println("Cannot find FXML file: " + fxmlPath);
             mainContentArea.getChildren().setAll(new Label("Cannot find FXML file: " + fxmlPath));
+        }
+    }
+
+    public void loadPaymentPage(Reservation reservation) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/payment_page.fxml"));
+            Parent page = loader.load();
+
+            PaymentPageController controller = loader.getController();
+
+            mainContentArea.getChildren().setAll(page);
+            AnchorPane.setTopAnchor(page, 0.0);
+            AnchorPane.setBottomAnchor(page, 0.0);
+            AnchorPane.setLeftAnchor(page, 0.0);
+            AnchorPane.setRightAnchor(page, 0.0);
+
+        } catch (IOException e) {
+            System.err.println("Failed to load payment page FXML.");
+            e.printStackTrace();
+            mainContentArea.getChildren().setAll(new Label("Error: Cannot load payment page."));
         }
     }
 }

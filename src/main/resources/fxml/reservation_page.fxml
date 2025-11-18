@@ -109,7 +109,7 @@
                          </VBox>
                      </left>
                      <right>
-                              <Button fx:id="proceedToPaymentButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #4b614d; -fx-text-fill: white; -fx-font-weight: bold;" text="Proceed to Payment" BorderPane.alignment="CENTER">
+                              <Button fx:id="proceedToPaymentButton" onAction="#handleProceedToPaymentClick" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #4b614d; -fx-text-fill: white; -fx-font-weight: bold;" text="Proceed to Payment" BorderPane.alignment="CENTER">
                                   <font>
                                       <Font size="14.0" />
                                   </font>

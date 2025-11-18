@@ -8,13 +8,14 @@ import Utilities.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -159,7 +160,6 @@ public class ReservationPageController {
 
     }
 
-    /*
     @FXML
     private void handleProceedToPaymentClick(ActionEvent event) {
 
@@ -179,10 +179,24 @@ public class ReservationPageController {
         );
 
         if (newReservation.isPresent()) {
-            // 3. Navigate to the actual payment page
-            System.out.println("Reservation created! ID: " + newReservation.get().getTransactNo());
-            // TODO: Load the payment_page.fxml here
-            // We pass the new reservation object to the payment controller
+            Reservation finalReservation = newReservation.get();
+            try {
+                Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+                CustomerDashboardController parentController = (CustomerDashboardController) currentStage.getScene().getRoot().getUserData();
+
+                if (parentController != null) {
+                    parentController.loadPaymentPage(finalReservation);
+                } else {
+                    System.err.println("CRITICAL: Cannot find parent dashboard controller for navigation.");
+                    new Alert(Alert.AlertType.INFORMATION, "Booking Success! ID: " + finalReservation.getReservationID() + " - Payment navigation failed.").showAndWait();
+                }
+
+            } catch (Exception e) {
+                System.err.println("Navigation error: " + e.getMessage());
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Reservation Success, but Navigation Failed. See console.").showAndWait();
+            }
         } else {
             // Show error (e.g., no slots left)
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -192,6 +206,4 @@ public class ReservationPageController {
             alert.showAndWait();
         }
     }
-
-     */
 }

@@ -38,7 +38,6 @@
 
                 <MenuButton fx:id="accountButton" mnemonicParsing="false" style="-fx-background-color: #4b614d; -fx-cursor: hand;" text="ACCOUNT" textFill="WHITE">
                     <items>
-                        <MenuItem fx:id="profileMenuItem" mnemonicParsing="false" onAction="#handleProfileClick" text="PROFILE" />
                         <MenuItem fx:id="logoutMenuItem" mnemonicParsing="false" onAction="#handleLogoutClick" text="LOG OUT" />
                     </items>
                     <font>

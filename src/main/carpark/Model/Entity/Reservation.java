@@ -75,6 +75,7 @@ public class Reservation {
         this.status           = status;                     
     }
 
+    public int           getReservationID()  {return this.reservation_ID;}
     public int           getBranchID()       {return this.branchID;}
     public SlotType      getSlotType()       {return this.slotType;}
     public int           getID()             {return this.reservation_ID;}
