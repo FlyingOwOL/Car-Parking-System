@@ -5,14 +5,12 @@ import DAO.ReservationDAO;
 import DAO.VehicleDAO;
 import Model.DTO.ReservationSummaryDTO;
 import Model.Entity.Customer;
-import Model.Entity.Reservation;
 import Model.Entity.User;
 import Model.Entity.Vehicle;
 import Service.CustomerService;
 import Service.ReservationService;
 import Utilities.SessionManager;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,7 +19,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,8 +60,6 @@ public class ProfilePageController {
     private User currentUser;
     private ObservableList<Vehicle> vehicleList = FXCollections.observableArrayList();
     private ObservableList<ReservationSummaryDTO> reservationList = FXCollections.observableArrayList();
-
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @FXML
     public void initialize() {
