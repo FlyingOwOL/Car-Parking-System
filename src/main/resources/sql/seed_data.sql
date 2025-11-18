@@ -9,7 +9,7 @@ USE dbCar_parking_system;
 -- Disable foreign key checks to truncate tables in any order
 SET FOREIGN_KEY_CHECKS=0;
 
--- Truncate all tables to ensure a clean slate
+-- 1. Truncate Tables
 TRUNCATE TABLE payments;
 TRUNCATE TABLE reservations;
 TRUNCATE TABLE pricing;
@@ -19,6 +19,16 @@ TRUNCATE TABLE admins;
 TRUNCATE TABLE customers;
 TRUNCATE TABLE users;
 TRUNCATE TABLE branches;
+
+-- 2. RESET AUTO_INCREMENT COUNTERS
+ALTER TABLE users AUTO_INCREMENT = 1;
+ALTER TABLE customers AUTO_INCREMENT = 1;
+ALTER TABLE admins AUTO_INCREMENT = 1;
+ALTER TABLE branches AUTO_INCREMENT = 1;
+ALTER TABLE vehicles AUTO_INCREMENT = 1;
+ALTER TABLE reservations AUTO_INCREMENT = 1;
+ALTER TABLE payments AUTO_INCREMENT = 1;
+ALTER TABLE pricing AUTO_INCREMENT = 1;
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=1;

@@ -174,7 +174,7 @@ public class PaymentPageController {
             showError("No reservation data available. Please create a reservation first.");
             return;
         }
-        System.out.println("Reservation found: " + currentReservation.getID());
+        System.out.println("Reservation found: " + currentReservation.getReservationID());
 
         String paymentMethod = getSelectedPaymentMethod();
         System.out.println("Payment method: " + paymentMethod);
@@ -349,9 +349,9 @@ public class PaymentPageController {
      */
     private void updateReservationDisplay(String branchName, String vehiclePlate) {
         if (currentReservation != null) {
-            reservationIdLabel.setText("RES-" + currentReservation.getID());
+            reservationIdLabel.setText("RES-" + currentReservation.getReservationID());
             branchNameLabel.setText(branchName);
-            slotTypeLabel.setText(currentReservation.getSlotType().toString());
+            slotTypeLabel.setText(currentReservation.getSpotID());
             vehiclePlateLabel.setText(vehiclePlate);
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

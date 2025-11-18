@@ -5,12 +5,11 @@ import DAO.ParkingDAO;
 import DAO.PaymentDAO;
 import DAO.DBConnectionUtil;
 
-import Model.Entity.Payment;
+import Model.Entity.*;
 import Model.Entity.Payment.PaymentStatus;
 import Model.Entity.Payment.ModeOfPayment;
-import Model.Entity.Reservation;
-import Model.Entity.Pricing;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -55,7 +54,7 @@ public class PaymentService {
             // Fetch reservation details
             Optional<Reservation> reservationOpt = reservationDAO.getReservationByID(reservationID);
 
-            if (!reservationOpt.isPresent()) {
+            if (reservationOpt.isEmpty()) {
                 System.err.println("PaymentService: Reservation not found - " + reservationID);
                 return Optional.empty();
             }
@@ -63,12 +62,20 @@ public class PaymentService {
             Reservation reservation = reservationOpt.get();
 
             // Get pricing rules
+            Optional<ParkingSlot> slotOpt = parkingDAO.getSlotByID(reservation.getSpotID());
+            if (slotOpt.isEmpty()) {
+                System.err.println("PaymentService: Slot ID not found: " + reservation.getSpotID());
+                conn.rollback();
+                return Optional.empty();
+            }
+            ParkingSlot slot = slotOpt.get();
+
             Optional<Pricing> pricingOpt = parkingDAO.getPricingRule(
-                    reservation.getBranchID(),
-                    reservation.getSlotType()
+                    slot.getBranch_ID(),
+                    slot.getSlot_type()
             );
 
-            if (!pricingOpt.isPresent()) {
+            if (pricingOpt.isEmpty()) {
                 System.err.println("PaymentService: Pricing rule not found");
                 rollbackTransaction(conn);
                 return Optional.empty();
@@ -81,26 +88,23 @@ public class PaymentService {
 
             // Create payment record
             Payment payment = new Payment(
-                    reservation.getID(),
-                    totalAmount,
-                    totalAmount,
+                    reservation.getReservationID(),
+                    new BigDecimal(totalAmount),
+                    new BigDecimal(totalAmount),
                     LocalDate.now(),
                     PaymentStatus.PAID,
-                    modeOfPayment,
-                    adminID
+                    modeOfPayment
             );
 
-            int paymentId = paymentDAO.insertPayment(payment);
-            if (paymentId <= 0) {
+            boolean paymentInserted = paymentDAO.insertPayment(payment);
+            if (!paymentInserted) {
                 System.err.println("PaymentService: Failed to create payment");
-                rollbackTransaction(conn);
+                conn.rollback();
                 return Optional.empty();
             }
 
-            payment.setPayment_ID(paymentId);
-
             // Update reservation status to completed
-            boolean updated = reservationDAO.updateReservationStatus(reservationID, "Completed");
+            boolean updated = reservationDAO.updateReservationStatus(reservationID, ReservationStatus.COMPLETED, conn);
 
             if (!updated) {
                 System.err.println("PaymentService: Failed to update reservation status");

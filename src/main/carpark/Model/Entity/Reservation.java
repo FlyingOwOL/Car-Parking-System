@@ -6,105 +6,57 @@ import java.time.LocalDateTime;
 public class Reservation {
     // SY
     private int           reservation_ID;
-    private int           branchID;
-    private SlotType      slotType;
     private int           vehicle_ID;
     private String        spot_ID;
     private LocalDateTime expected_time_in;
     private LocalDateTime dateReserved;
-    private boolean       isAdvanceReserve;
     private LocalDateTime checkInTime;
     private LocalDateTime checkOutTime;
-    private String        status;
+    private ReservationStatus status;
 
     // Make new reservation
-    public Reservation(int           branchID, 
-                       SlotType      slotType, 
-                       int           vehicle_ID, 
+    public Reservation(int           vehicleID,
                        String        spot_ID, 
-                       LocalDateTime checkInTime){
+                       LocalDateTime expected_time_in,
+                       LocalDateTime dateReserved,
+                       ReservationStatus status){
                         
-        this.branchID    = branchID;
-        this.slotType    = slotType;
-        this.vehicle_ID  = vehicle_ID;
-        this.spot_ID     = spot_ID;
-        this.checkInTime = checkInTime;
+        this.vehicle_ID = vehicleID;
+        this.spot_ID = spot_ID;
+        this.expected_time_in = expected_time_in;
+        this.dateReserved = dateReserved;
+        this.status = status;
     }
-    // loading reservation
+    // Reading from Database
     public Reservation(int           reservation_ID, 
-                       int           branchID, 
-                       SlotType      slotType, 
-                       int           vehicle_ID, 
-                       String        spot_ID, 
+                       int           vehicle_ID,
+                       String        spot_ID,
+                       LocalDateTime expected_time_in,
                        LocalDateTime checkInTime, 
                        LocalDateTime checkOutTime,
-                       String        status){
+                       LocalDateTime dateReserved,
+                       ReservationStatus status){
 
         this.reservation_ID = reservation_ID;
-        this.branchID       = branchID;
-        this.slotType       = slotType;
         this.vehicle_ID     = vehicle_ID;
         this.spot_ID        = spot_ID;
+        this.expected_time_in = expected_time_in;
         this.checkInTime    = checkInTime;
         this.checkOutTime   = checkOutTime;
+        this.dateReserved = dateReserved;
         this.status         = status;
-    }
-    // Make/Load Reservation with an advance
-    public Reservation(int           reservation_ID, 
-                       int           branchID, 
-                       SlotType      slotType, 
-                       int           vehicle_ID, 
-                       String        spot_ID, 
-                       LocalDateTime checkInTime, 
-                       LocalDateTime checkOutTime, 
-                       boolean       isAdvanceReserve,
-                       LocalDateTime expected_time_in, 
-                       LocalDateTime dateReserved,
-                       String        status){
-
-        this.reservation_ID   = reservation_ID;
-        this.branchID         = branchID;
-        this.slotType         = slotType;
-        this.vehicle_ID       = vehicle_ID;
-        this.spot_ID          = spot_ID;
-        this.expected_time_in = expected_time_in;
-        this.dateReserved     = dateReserved;
-        this.isAdvanceReserve = isAdvanceReserve;
-        this.checkInTime      = checkInTime;
-        this.checkOutTime     = checkOutTime;   
-        this.status           = status;                     
     }
 
     public int           getReservationID()  {return this.reservation_ID;}
-    public int           getBranchID()       {return this.branchID;}
-    public SlotType      getSlotType()       {return this.slotType;}
-    public int           getID()             {return this.reservation_ID;}
     public int           getVehicleID()      {return this.vehicle_ID;}
     public String        getSpotID()         {return this.spot_ID;}
     public LocalDateTime getExpectedTimeIn() {return this.expected_time_in;}
     public LocalDateTime getDateReserved()   {return this.dateReserved;}
-    public boolean       isAdvanceReserve()  {return this.isAdvanceReserve;}
-    public String        getStatus()         {return this.status;}
+    public ReservationStatus getStatus()     {return this.status;}
     public LocalDateTime getTimeOut()        {return this.checkOutTime;}
+    public LocalDateTime getCheckInTime(){return this.checkInTime;}
 
-    public LocalDateTime getCheckInTime(){
-       if (isAdvanceReserve()){
-            return this.expected_time_in;
-       } else {
-            return this.checkInTime;
-       }
-    }
-    
-    public int getReserved_hours() {
-        if (checkInTime != null && 
-            checkOutTime != null && 
-            checkOutTime.isAfter(checkInTime)) {
-
-            Duration duration = Duration.between(checkInTime, checkOutTime);
-            return (int) duration.toHours(); 
-        }
-        return 0;  
-    }
+    public void setTransactID(int transactID) { this.reservation_ID = transactID; }
 
     // Use to update reservations
     public void setCheckOutTime (LocalDateTime checkOut){
@@ -112,5 +64,16 @@ public class Reservation {
     }
     public void setID(int ID){
         this.reservation_ID = ID;
+    }
+
+    public int getReserved_hours() {
+        if (this.getCheckInTime() != null && this.checkOutTime != null &&
+                this.checkOutTime.isAfter(this.getCheckInTime())) {
+
+            Duration duration = Duration.between(this.getCheckInTime(), this.checkOutTime);
+            long minutes = duration.toMinutes();
+            return (int) Math.max(1, (minutes + 59) / 60);
+        }
+        return 0;
     }
 }

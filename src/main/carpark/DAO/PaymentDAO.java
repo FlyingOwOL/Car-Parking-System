@@ -4,6 +4,7 @@ import Model.Entity.Payment;
 import Model.Entity.Payment.PaymentStatus;
 import Model.Entity.Payment.ModeOfPayment;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,21 +16,21 @@ public class PaymentDAO {
     // === SQL QUERIES ====
     private static final String INSERT_PAYMENT =
             "INSERT INTO payments (transact_ID, amount_to_pay, amount_paid, payment_date, payment_status, " +
-            "mode_of_payment, processed_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "mode_of_payment) VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_PAYMENT_BY_ID =
             "SELECT payment_ID, transact_ID, amount_to_pay, amount_paid, payment_date, " +
-                    "payment_status, mode_of_payment, processed_by FROM payments WHERE payment_ID = ?";
+                    "payment_status, mode_of_payment FROM payments WHERE payment_ID = ?";
 
     // when will this be used?
     private static final String SELECT_ALL_PAYMENTS =
             "SELECT payment_ID, transact_ID, amount_to_pay, amount_paid, payment_date, " +
-                    "payment_status, mode_of_payment, processed_by FROM payments";
+                    "payment_status, mode_of_payment FROM payments";
 
     // can u even update a payment?
     private static final String UPDATE_PAYMENT =
             "UPDATE payments SET transact_ID = ?, amount_to_pay = ?, amount_paid = ?, " +
-                    "payment_date = ?, payment_status = ?, mode_of_payment = ?, processed_by = ? " +
+                    "payment_date = ?, payment_status = ?, mode_of_payment = ?" +
                     "WHERE payment_ID = ?";
 
     // in what situation will u delete a payment
@@ -39,12 +40,12 @@ public class PaymentDAO {
     // ask
     private static final String SELECT_PAYMENTS_BY_TRANSACTION =
             "SELECT payment_ID, transact_ID, amount_to_pay, amount_paid, payment_date, " +
-                    "payment_status, mode_of_payment, processed_by FROM payments WHERE transact_ID = ?";
+                    "payment_status, mode_of_payment FROM payments WHERE transact_ID = ?";
 
     // ask
     private static final String SELECT_PAYMENTS_BY_STATUS =
             "SELECT payment_ID, transact_ID, amount_to_pay, amount_paid, payment_date, " +
-                    "payment_status, mode_of_payment, processed_by FROM payments WHERE payment_status = ?";
+                    "payment_status, mode_of_payment FROM payments WHERE payment_status = ?";
 
     private static final String UPDATE_PAYMENT_STATUS =
             "UPDATE payments SET payment_status = ? WHERE payment_ID = ?";
@@ -52,7 +53,7 @@ public class PaymentDAO {
     // ask
     private static final String SELECT_PAYMENTS_BY_DATE_RANGE =
             "SELECT payment_ID, transact_ID, amount_to_pay, amount_paid, payment_date, " +
-                    "payment_status, mode_of_payment, processed_by FROM payments " +
+                    "payment_status, mode_of_payment FROM payments " +
                     "WHERE payment_date BETWEEN ? AND ?";
 
 
@@ -65,15 +66,14 @@ public class PaymentDAO {
     private Payment mapRowToPayment(ResultSet rs) throws SQLException {
         int paymentID = rs.getInt("payment_ID");
         int transactID = rs.getInt("transact_ID");
-        float amountToPay = rs.getFloat("amount_to_pay");
-        float amountPaid = rs.getFloat("amount_paid");
+        BigDecimal amountToPay = rs.getBigDecimal("amount_to_pay");
+        BigDecimal amountPaid = rs.getBigDecimal("amount_paid");
         LocalDate paymentDate = rs.getDate("payment_date").toLocalDate();
         PaymentStatus paymentStatus = PaymentStatus.valueOf(rs.getString("payment_status"));
         ModeOfPayment modeOfPayment = ModeOfPayment.valueOf(rs.getString("mode_of_payment"));
-        int processedBy = rs.getInt("processed_by");
 
         return new Payment(paymentID, transactID, amountToPay, amountPaid,
-                paymentDate, paymentStatus, modeOfPayment, processedBy);
+                paymentDate, paymentStatus, modeOfPayment);
     }
 
     /**
@@ -83,7 +83,7 @@ public class PaymentDAO {
      * @param payment The Payment object to insert (payment_ID will be auto-generated).
      * @return The generated payment_ID if successful, -1 otherwise.
      */
-    public int insertPayment(Payment payment) {
+    public boolean insertPayment(Payment payment) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -93,12 +93,11 @@ public class PaymentDAO {
             conn = DBConnectionUtil.getConnection();
             ps = conn.prepareStatement(INSERT_PAYMENT, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, payment.getTransact_ID());
-            ps.setFloat(2, payment.getAmount_To_Pay());
-            ps.setFloat(3, payment.getAmount_paid());
+            ps.setBigDecimal(2, payment.getAmount_To_Pay());
+            ps.setBigDecimal(3, payment.getAmount_paid());
             ps.setDate(4, Date.valueOf(payment.getPayment_date()));
             ps.setString(5, payment.getPayment_status().name());
             ps.setString(6, payment.getMode_of_payment().name());
-            ps.setInt(7, payment.getProcessed_by());
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {
@@ -106,13 +105,14 @@ public class PaymentDAO {
                 if (rs.next()) {
                     generatedID = rs.getInt(1);
                 }
+                return true;
             }
         } catch (SQLException e) {
             System.err.println("PaymentDAO Error in insertPayment: " + e.getMessage());
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }
-        return generatedID;
+        return false;
     }
 
     /**
@@ -281,13 +281,12 @@ public class PaymentDAO {
             conn = DBConnectionUtil.getConnection();
             ps = conn.prepareStatement(UPDATE_PAYMENT);
             ps.setInt(1, payment.getTransact_ID());
-            ps.setFloat(2, payment.getAmount_To_Pay());
-            ps.setFloat(3, payment.getAmount_paid());
+            ps.setBigDecimal(2, payment.getAmount_To_Pay());
+            ps.setBigDecimal(3, payment.getAmount_paid());
             ps.setDate(4, Date.valueOf(payment.getPayment_date()));
             ps.setString(5, payment.getPayment_status().name());
             ps.setString(6, payment.getMode_of_payment().name());
-            ps.setInt(7, payment.getProcessed_by());
-            ps.setInt(8, payment.getPayment_ID());
+            ps.setInt(7, payment.getPayment_ID());
 
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;

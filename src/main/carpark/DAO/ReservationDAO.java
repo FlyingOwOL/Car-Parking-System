@@ -1,14 +1,14 @@
 package DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import Model.Entity.Reservation;
+import Model.Entity.ReservationStatus;
 import Model.Entity.SlotType;
+
+import javax.naming.NamingEnumeration;
 
 public class ReservationDAO {
     // SY
@@ -19,11 +19,10 @@ public class ReservationDAO {
     private static final String GET_EXTRA_PROPERTIES     = "SELECT branch_ID, slot_type " + 
                                                            "FROM parking_slots " + 
                                                            "WHERE spot_ID = ?";
-    //(vehicle_ID, spot_ID, expected_time_in, dateReserved, isAdvanced, check_in_time, timeOut, status)
+    //(vehicle_ID, spot_ID, expected_time_in, dateReserved, check_in_time, timeOut, status)
     private static final String INSERT_RESERVATION       = "INSERT INTO reservations "+
-                                                           "(vehicle_ID, spot_ID, expected_time_in, dateReserved, "+ 
-                                                           " isAdvanced, check_in_time, timeOut, status) "+
-                                                           "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                                                           "(vehicle_ID, spot_ID, expected_time_in, dateReserved, status) "+
+                                                           "VALUES (?, ?, ?, ?, ?)";
 
     Connection        conn = null;
     PreparedStatement ps   = null;
@@ -40,64 +39,34 @@ public class ReservationDAO {
             conn = DBConnectionUtil.getConnection();
             ps   = conn.prepareStatement(SELECT_RESERVATION_BY_ID);
             ps.setInt(1, reservation_ID); 
-            rs   = ps.executeQuery();  
+            rs   = ps.executeQuery();
 
-            if (!rs.next()){
-                return Optional.empty();
+            if (rs.next()) {
+                return Optional.of(mapRowToReservation(rs));
             }
-
-            //These are found in reservations table
-            int           id               = rs.getInt("transact_ID");  
-            int           vehicle_ID       = rs.getInt("vehicle_ID");
-            String        spot_ID          = rs.getString("spot_ID");
-            LocalDateTime expected_time_in = dateChecker(rs.getTimestamp("expected_time_in"));
-            LocalDateTime dateReserved     = dateChecker(rs.getTimestamp("dateReserved"));
-            boolean       isAdvanceReserve = rs.getBoolean("isAdvanceReserve");
-            LocalDateTime checkInTime      = dateChecker(rs.getTimestamp("checkInTime"));
-            LocalDateTime checkOutTime     = dateChecker(rs.getTimestamp("checkOutTime"));
-            String        status           = rs.getString("status"); 
-
-            //These are found in parking_slots table
-            ex   = conn.prepareStatement(GET_EXTRA_PROPERTIES);
-            ex.setString(1, spot_ID);
-            rs2  = ex.executeQuery();
-
-            if (!rs2.next()){
-                return Optional.empty();
-            }
-
-            SlotType      slotType         = SlotType.valueOf(rs2.getString("slot_Type"));
-            int           branchID         = rs2.getInt("branch_ID");              
-
-            Reservation   reservation      = createReservationInstance(id, branchID, slotType, vehicle_ID, 
-                                                                      spot_ID, checkInTime, checkOutTime, 
-                                                                      isAdvanceReserve, expected_time_in, 
-                                                                      dateReserved, status);
-            return Optional.of(reservation);
         } catch(SQLException err) {
             System.err.println("ReservationDAO Error in getReservationByID: " + err.getMessage());
             return Optional.empty(); 
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
-            if (ex != null) try { ex.close(); } catch (SQLException e) {}
-            if (rs2 != null) try { rs2.close(); } catch (SQLException e) {}
         }
+        return Optional.empty();
     }
 
     /**
      * 
      * @param reservation_ID
-     * @param STATUS_COMPLETED
+     * @param newStatus
      * @return
      */
-    public boolean updateReservationStatus(int reservation_ID, String STATUS_COMPLETED){
+    public boolean updateReservationStatus(int reservation_ID, ReservationStatus newStatus, Connection conn){
         try{
             conn = DBConnectionUtil.getConnection();
             ps   = conn.prepareStatement(UPDATE_RESERVATION);
-            ps.setInt(1, reservation_ID); 
-            ps.setString(2, STATUS_COMPLETED);      
-            int rowsAffected = ps.executeUpdate();  
-            return rowsAffected > 0;  
+            ps.setString(1, newStatus.name());
+            ps.setInt(2, reservation_ID);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
         } catch(SQLException err) {
             System.err.println("ReservationDAO Error in updateReservationStatus: " + err.getMessage());
             return false; 
@@ -109,37 +78,34 @@ public class ReservationDAO {
     public Optional<Reservation> insertReservation(Reservation newReservation, 
                                                    Connection  conn){
         
-        PreparedStatement ps = null;  // Made local
+        PreparedStatement ps = null;
         ResultSet generatedKeys = null;
+
         try {
             ps = conn.prepareStatement(INSERT_RESERVATION, PreparedStatement.RETURN_GENERATED_KEYS); 
-
 
             ps.setInt(1, newReservation.getVehicleID());                         // vehicle_ID
             ps.setString(2, newReservation.getSpotID());                         // spot_ID
             ps.setTimestamp(3, dateChecker(newReservation.getExpectedTimeIn())); // expected_time_in
             ps.setTimestamp(4, dateChecker(newReservation.getDateReserved()));   // dateReserved
-            ps.setBoolean(5, newReservation.isAdvanceReserve());                 // isAdvanceReserve
-            ps.setTimestamp(6, dateChecker(newReservation.getCheckInTime()));    // timeIn
-            ps.setTimestamp(7, dateChecker(newReservation.getTimeOut()));        // timeOut
-            ps.setString(8, newReservation.getStatus());                         // status
+            ps.setString(5, newReservation.getStatus().name());                         // status
 
             int rowsAffected = ps.executeUpdate();
+
             if (rowsAffected == 0) {
-                System.out.println("No rows affected");
-                return Optional.empty();
-            }
-            // Retrieve the auto-generated transact_ID
-            generatedKeys = ps.getGeneratedKeys();
-            if (!generatedKeys.next()) {
-                System.out.println("Error getting generated keys");
+                System.err.println("ReservationDAO: Insertion failed, no rows affected.");
                 return Optional.empty();
             }
 
-            int generatedId = generatedKeys.getInt(1);  // First column is the generated key
-            newReservation.setID(generatedId);
-            
-            return Optional.of(newReservation);            
+            generatedKeys = ps.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int newId = generatedKeys.getInt(1);
+                newReservation.setTransactID(newId); // Update the object with the ID
+                return Optional.of(newReservation);
+            } else {
+                System.err.println("ReservationDAO: Insertion failed, no ID obtained.");
+                return Optional.empty();
+            }
         } catch (SQLException err) {
             System.out.println("ReservationDAO Error in insertReservation: " + err.getMessage());
             return Optional.empty();
@@ -149,33 +115,31 @@ public class ReservationDAO {
         }
     }
     //helper functions
+    private Reservation mapRowToReservation(ResultSet rs) throws SQLException {
+        int transactID = rs.getInt("transact_ID");
+        int vehicleId = rs.getInt("vehicle_ID");
+        String spotId = rs.getString("spot_ID");
+
+        // Handle nullable timestamps
+        Timestamp expectedTs = rs.getTimestamp("expected_time_in");
+        LocalDateTime expected = expectedTs != null ? expectedTs.toLocalDateTime() : null;
+
+        Timestamp checkInTs = rs.getTimestamp("check_in_time");
+        LocalDateTime checkIn = checkInTs != null ? checkInTs.toLocalDateTime() : null;
+
+        Timestamp outTs = rs.getTimestamp("time_Out");
+        LocalDateTime out = outTs != null ? outTs.toLocalDateTime() : null;
+
+        Timestamp reservedTs = rs.getTimestamp("dateReserved");
+        LocalDateTime reserved = reservedTs != null ? reservedTs.toLocalDateTime() : null;
+
+        ReservationStatus status = ReservationStatus.valueOf(rs.getString("status"));
+
+        return new Reservation(
+                transactID, vehicleId, spotId, expected, checkIn, out, reserved, status
+        );
+    }
+
     private java.sql.Timestamp dateChecker(LocalDateTime date) {return date != null ? java.sql.Timestamp.valueOf(date) : null;}
     private LocalDateTime dateChecker(java.sql.Timestamp date) {return date != null ? date.toLocalDateTime() : null;}
-
-    private Reservation createReservationInstance(int           id, 
-                                                 int           branchID, 
-                                                 SlotType      slotType, 
-                                                 int           vehicle_ID, 
-                                                 String        spot_ID, 
-                                                 LocalDateTime checkInTime, 
-                                                 LocalDateTime checkOutTime, 
-                                                 boolean       isAdvanceReserve,
-                                                 LocalDateTime expected_time_in, 
-                                                 LocalDateTime dateReserved,
-                                                 String        status){
-
-        Reservation reservation;
-        if(isAdvanceReserve){
-            reservation = new Reservation(id, branchID, slotType, vehicle_ID, 
-                                            spot_ID, checkInTime, checkOutTime, 
-                                            isAdvanceReserve, expected_time_in, 
-                                            dateReserved, status);
-
-        } else {
-            reservation = new Reservation(id, branchID, slotType, vehicle_ID, 
-                                            spot_ID, checkInTime, checkOutTime, 
-                                            status);
-        }
-        return reservation;
-    }
 }

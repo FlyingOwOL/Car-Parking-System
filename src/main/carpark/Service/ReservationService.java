@@ -5,6 +5,7 @@ import DAO.ReservationDAO;
 import DAO.DBConnectionUtil;
 import Model.Entity.Reservation;
 import Model.Entity.ParkingSlot;
+import Model.Entity.ReservationStatus;
 import Model.Entity.SlotType;
 
 import java.sql.Connection;
@@ -29,7 +30,7 @@ public class ReservationService {
     }
 
    
-    public Optional<Reservation> createReservation(int userID, int vehicleID, int branchID, SlotType slotType, LocalDateTime checkInTime) {
+    public Optional<Reservation> createReservation(int userID, int vehicleID, int branchID, SlotType slotType, LocalDateTime expectedTimeIn) {
         Connection conn = null;
         
         try {
@@ -51,37 +52,50 @@ public class ReservationService {
 
             // Step 3: Create the reservation record in the database
             Reservation newReservation = new Reservation(
-                branchID, slotType, vehicleID, spotId, checkInTime
+                    vehicleID,
+                    spotId,
+                    expectedTimeIn,
+                    LocalDateTime.now(),
+                    ReservationStatus.ACTIVE
             );
             
             Optional<Reservation> createdReservation = reservationDAO.insertReservation(newReservation, conn);
             
-            if (!createdReservation.isPresent()) {
+            if (createdReservation.isEmpty()) {
                 System.err.println("ReservationService: Failed to insert reservation");
-                rollbackTransaction(conn);
+                conn.rollback();
                 return Optional.empty();
             }
 
             // Step 4: Mark the slot as taken so no one else can book it
-            boolean slotUpdated = parkingDAO.updateSlotAvailability(spotId, false);
+            boolean slotUpdated = parkingDAO.updateSlotAvailability(spotId, false, conn);
             
             if (!slotUpdated) {
                 System.err.println("ReservationService: Failed to update slot availability");
-                rollbackTransaction(conn);
+                conn.rollback();
                 return Optional.empty();
             }
 
             conn.commit();
-            System.out.println("ReservationService: Reservation created successfully - ID: " + createdReservation.get().getID());
+            System.out.println("ReservationService: Reservation created successfully - ID: " + createdReservation.get().getReservationID());
             
             return createdReservation;
 
         } catch (SQLException e) {
             System.err.println("ReservationService Error in createReservation: " + e.getMessage());
-            rollbackTransaction(conn);
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             return Optional.empty();
         } finally {
-            closeConnection(conn);
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    DBConnectionUtil.closeConnection(conn);
+                } catch (SQLException e) {
+                    System.err.println("Error closing connection: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -105,48 +119,29 @@ public class ReservationService {
             // Step 2: Verify Status - Get the reservation and check it can be cancelled
             Optional<Reservation> reservationOpt = reservationDAO.getReservationByID(reservationID);
             
-            if (!reservationOpt.isPresent()) {
+            if (reservationOpt.isEmpty()) {
                 System.err.println("ReservationService: Reservation not found - " + reservationID);
                 rollbackTransaction(conn);
                 return false;
             }
 
-            Reservation reservation = reservationOpt.get();
-            String currentStatus = reservation.getStatus();
-            
-            // Check if reservation is already completed or paid (can't cancel those)
-            if ("COMPLETED".equalsIgnoreCase(currentStatus) || "PAID".equalsIgnoreCase(currentStatus)) {
-                System.err.println("ReservationService: Cannot cancel completed or paid reservation");
-                rollbackTransaction(conn);
+            if (reservationOpt.get().getStatus() != ReservationStatus.ACTIVE) {
+                System.err.println("ReservationService: Cannot cancel. Status is " + reservationOpt.get().getStatus());
+                conn.rollback();
                 return false;
             }
 
-            // Optional: Check if the user owns this reservation
-            // (You might want to add vehicle ownership check here)
+            boolean statusUpdated = reservationDAO.updateReservationStatus(reservationID, ReservationStatus.CANCELLED, conn);
+            boolean slotReleased = parkingDAO.updateSlotAvailability(reservationOpt.get().getSpotID(), true, conn);
 
-            // Step 3: Update Status - Mark reservation as cancelled
-            boolean statusUpdated = reservationDAO.updateReservationStatus(reservationID, "CANCELLED");
-            
-            if (!statusUpdated) {
-                System.err.println("ReservationService: Failed to update reservation status");
-                rollbackTransaction(conn);
+            if (statusUpdated && slotReleased) {
+                conn.commit();
+                System.out.println("ReservationService: Reservation " + reservationID + " cancelled successfully.");
+                return true;
+            } else {
+                conn.rollback();
                 return false;
             }
-
-            // Step 4: Release Slot - Make the parking slot available again
-            String spotId = reservation.getSpotID();
-            boolean slotReleased = parkingDAO.updateSlotAvailability(spotId, true);
-            
-            if (!slotReleased) {
-                System.err.println("ReservationService: Failed to release parking slot");
-                rollbackTransaction(conn);
-                return false;
-            }
-
-            // If everything worked, commit the transaction
-            conn.commit();
-            System.out.println("ReservationService: Reservation cancelled successfully - ID: " + reservationID);
-            return true;
 
         } catch (SQLException e) {
             System.err.println("ReservationService Error in cancelReservation: " + e.getMessage());
