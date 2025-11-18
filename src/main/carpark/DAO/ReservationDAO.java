@@ -20,9 +20,12 @@ public class ReservationDAO {
                                                            "FROM parking_slots " + 
                                                            "WHERE spot_ID = ?";
     //(vehicle_ID, spot_ID, expected_time_in, dateReserved, check_in_time, timeOut, status)
-    private static final String INSERT_RESERVATION       = "INSERT INTO reservations "+
-                                                           "(vehicle_ID, spot_ID, expected_time_in, dateReserved, status) "+
-                                                           "VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_RESERVATION = "INSERT INTO reservations " +
+            "(vehicle_ID, spot_ID, expected_time_in, check_in_time, time_Out, dateReserved, status) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String AUTO_COMPLETE_EXPIRED =
+            "UPDATE reservations SET status = 'Completed' " +
+                    "WHERE status = 'Active' AND time_Out < NOW()";
 
     Connection        conn = null;
     PreparedStatement ps   = null;
@@ -54,6 +57,26 @@ public class ReservationDAO {
     }
 
     /**
+     * This keeps the database status in sync with real time.
+     */
+    public void updateExpiredReservations() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(AUTO_COMPLETE_EXPIRED);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("System: Auto-completed " + rows + " expired reservations.");
+            }
+        } catch (SQLException e) {
+            System.err.println("ReservationDAO Error in updateExpiredReservations: " + e.getMessage());
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps);
+        }
+    }
+
+    /**
      * 
      * @param reservation_ID
      * @param newStatus
@@ -82,13 +105,15 @@ public class ReservationDAO {
         ResultSet generatedKeys = null;
 
         try {
-            ps = conn.prepareStatement(INSERT_RESERVATION, PreparedStatement.RETURN_GENERATED_KEYS); 
+            ps = conn.prepareStatement(INSERT_RESERVATION, PreparedStatement.RETURN_GENERATED_KEYS);
 
             ps.setInt(1, newReservation.getVehicleID());                         // vehicle_ID
             ps.setString(2, newReservation.getSpotID());                         // spot_ID
             ps.setTimestamp(3, dateChecker(newReservation.getExpectedTimeIn())); // expected_time_in
-            ps.setTimestamp(4, dateChecker(newReservation.getDateReserved()));   // dateReserved
-            ps.setString(5, newReservation.getStatus().name());                         // status
+            ps.setTimestamp(4, Timestamp.valueOf(newReservation.getCheckInTime()));
+            ps.setTimestamp(5, Timestamp.valueOf(newReservation.getTimeOut()));
+            ps.setTimestamp(6, dateChecker(newReservation.getDateReserved()));   // dateReserved
+            ps.setString(7, newReservation.getStatus().name());
 
             int rowsAffected = ps.executeUpdate();
 
@@ -133,7 +158,9 @@ public class ReservationDAO {
         Timestamp reservedTs = rs.getTimestamp("dateReserved");
         LocalDateTime reserved = reservedTs != null ? reservedTs.toLocalDateTime() : null;
 
-        ReservationStatus status = ReservationStatus.valueOf(rs.getString("status"));
+        ReservationStatus status = ReservationStatus.valueOf(
+                rs.getString("status").trim().toUpperCase()
+        );
 
         return new Reservation(
                 transactID, vehicleId, spotId, expected, checkIn, out, reserved, status

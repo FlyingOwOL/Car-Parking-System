@@ -1,5 +1,8 @@
 package Controller;
 
+import DAO.ParkingDAO;
+import DAO.VehicleDAO;
+import Model.Entity.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,11 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import Model.Entity.Payment;
-import Model.Entity.Reservation;
 import Model.Entity.Payment.ModeOfPayment;
 import Service.PaymentService;
-import Utilities.SessionManager;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -76,10 +76,14 @@ public class PaymentPageController {
     private TextField ewalletPinField;
 
     private PaymentService paymentService;
+    private ParkingDAO parkingDAO;
+    private VehicleDAO vehicleDAO;
     private Reservation currentReservation;
     private float totalAmount;
     private int currentReservationId;
     private ToggleGroup paymentMethodGroup;
+
+    private CustomerDashboardController dashboardController;
 
     /**
      * Initializes the controller class.
@@ -88,7 +92,9 @@ public class PaymentPageController {
     @FXML
     public void initialize() {
         this.paymentService = new PaymentService();
-        
+        this.parkingDAO = new ParkingDAO();
+        this.vehicleDAO = new VehicleDAO();
+
         // Set up payment method selection
         paymentMethodGroup = new ToggleGroup();
         cashRadioButton.setToggleGroup(paymentMethodGroup);
@@ -190,9 +196,8 @@ public class PaymentPageController {
         }
 
         try {
-            // Convert string to enum
             ModeOfPayment modeOfPayment = ModeOfPayment.valueOf(paymentMethod);
-            int adminId = SessionManager.getCurrentUser().getUser_ID();
+            int adminId = 1;
 
             System.out.println("Processing payment with: ReservationID=" + currentReservationId + 
                              ", Method=" + modeOfPayment + ", AdminID=" + adminId);
@@ -204,8 +209,6 @@ public class PaymentPageController {
 
             if (payment.isPresent()) {
                 System.out.println("Payment successful! Payment ID: " + payment.get().getPayment_ID());
-                // Store payment details (in a real app, you'd save this to database)
-                storePaymentDetails(paymentMethod);
                 showPaymentSuccess(payment.get());
             } else {
                 System.out.println("Payment failed - returned empty");
@@ -276,32 +279,6 @@ public class PaymentPageController {
     }
 
     /**
-     * Stores payment details (in a real application, this would save to database)
-     */
-    private void storePaymentDetails(String paymentMethod) {
-        String paymentDetails = "";
-        
-        if (creditCardRadioButton.isSelected()) {
-            paymentDetails = String.format(
-                "Credit Card - Number: %s, Expiry: %s, CVV: %s",
-                maskCardNumber(cardNumberField.getText()),
-                expiryDateField.getText(),
-                "***" // Never store actual CVV
-            );
-        } else if (ewalletRadioButton.isSelected()) {
-            paymentDetails = String.format(
-                "E-Wallet - Number: %s",
-                ewalletNumberField.getText()
-            );
-        } else {
-            paymentDetails = "Cash Payment";
-        }
-        
-        System.out.println("Payment details stored: " + paymentDetails);
-        // In a real app: Save to database or payment log
-    }
-
-    /**
      * Masks credit card number for security (shows only last 4 digits)
      */
     private String maskCardNumber(String cardNumber) {
@@ -317,11 +294,10 @@ public class PaymentPageController {
      */
     @FXML
     protected void handleBackBtn(ActionEvent event) {
-        try {
-            loadScene("/fxml/reservation_page.fxml", event);
-        } catch (IOException e) {
-            showError("Error: Could not load the reservation page.");
-            e.printStackTrace();
+        if (this.dashboardController != null) {
+            this.dashboardController.returnToReservationPage();
+        } else {
+            System.err.println("CRITICAL: Cannot find dashboard controller to navigate back.");
         }
     }
 
@@ -330,17 +306,41 @@ public class PaymentPageController {
      * This should be called when navigating from the reservation page.
      *
      * @param reservation The reservation object containing booking details
-     * @param amount The total amount to be paid
-     * @param reservationId The ID of the reservation
-     * @param branchName The name of the branch
-     * @param vehiclePlate The plate number of the vehicle
      */
-    public void setReservationData(Reservation reservation, float amount, int reservationId, String branchName, String vehiclePlate) {
+    public void setReservationData(Reservation reservation) {
         this.currentReservation = reservation;
-        this.totalAmount = amount;
-        this.currentReservationId = reservationId;
-        
-        // Update the UI with reservation details
+        this.currentReservationId = reservation.getReservationID();
+
+        String spotId = reservation.getSpotID();
+        String branchName = "--";
+        String vehiclePlate = "--";
+        float calculatedAmount = 0.0f;
+
+        try {
+            // 1. Fetch auxiliary data (Branch Name, Vehicle Plate)
+            Optional<Vehicle> vehicleOpt = vehicleDAO.findVehicleById(reservation.getVehicleID()); // Assuming a new DAO method
+
+            Optional<ParkingSlot> slotOpt = parkingDAO.getSlotByID(reservation.getSpotID());
+            Optional<Branch> branchOpt = parkingDAO.getAllBranches().stream()
+                    .filter(b -> slotOpt.isPresent() && b.getBranch_ID() == slotOpt.get().getBranch_ID())
+                    .findFirst();
+
+            // 2. Calculate Final Amount (Using the service logic for accuracy)
+            if (slotOpt.isPresent()) {
+                var pricingOpt = parkingDAO.getPricingRule(slotOpt.get().getBranch_ID(), slotOpt.get().getSlot_type());
+                if (pricingOpt.isPresent()) {
+                    calculatedAmount = paymentService.calculateTotalFee(reservation, pricingOpt.get());
+                }
+            }
+
+            branchName = branchOpt.map(Branch::getName).orElse("N/A");
+            vehiclePlate = vehicleOpt.map(Vehicle::getPlate_number).orElse("N/A");
+            this.totalAmount = calculatedAmount;
+
+        } catch (Exception e) {
+            System.err.println("Error fetching auxiliary data for payment page: " + e.getMessage());
+        }
+
         updateReservationDisplay(branchName, vehiclePlate);
     }
 
@@ -353,23 +353,17 @@ public class PaymentPageController {
             branchNameLabel.setText(branchName);
             slotTypeLabel.setText(currentReservation.getSpotID());
             vehiclePlateLabel.setText(vehiclePlate);
-            
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            checkInTimeLabel.setText(currentReservation.getCheckInTime().format(formatter));
-            
-            if (currentReservation.getTimeOut() != null) {
-                checkOutTimeLabel.setText(currentReservation.getTimeOut().format(formatter));
-            } else {
-                checkOutTimeLabel.setText("Not checked out");
-            }
-            
+            checkInTimeLabel.setText(currentReservation.getCheckInTime() != null ? currentReservation.getCheckInTime().format(formatter) : "N/A");
+            checkOutTimeLabel.setText(currentReservation.getTimeOut() != null ? currentReservation.getTimeOut().format(formatter) : "Not Checked Out");
+
             totalHoursLabel.setText(currentReservation.getReserved_hours() + " hours");
-            totalAmountLabel.setText("₱" + String.format("%.2f", totalAmount));
-            
-            // Calculate and display hourly rate
+            totalAmountLabel.setText("₱" + String.format("%,.2f", totalAmount));
+
             if (currentReservation.getReserved_hours() > 0) {
                 float hourlyRate = totalAmount / currentReservation.getReserved_hours();
-                hourlyRateLabel.setText("₱" + String.format("%.2f", hourlyRate) + "/hour");
+                hourlyRateLabel.setText("₱" + String.format("%,.2f", hourlyRate) + "/hour");
             }
         } else {
             // Show default values if no reservation data
@@ -415,21 +409,15 @@ public class PaymentPageController {
             "Reservation ID: " + currentReservationId + "\n" +
             "Thank you for your payment!"
         );
-        
+
         // Wait for user to close the alert, then navigate
         successAlert.showAndWait().ifPresent(response -> {
-            try {
-                // Navigate to dashboard using the confirm payment button's scene
-                Stage stage = (Stage) confirmPaymentButton.getScene().getWindow();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/customer_dashboard.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
-                System.out.println("Navigation to dashboard successful!");
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Error: Could not load the dashboard.");
+            if (this.dashboardController != null) {
+                // FIX: Navigate using the public method on the parent controller
+                this.dashboardController.returnToHome();
+            } else {
+                // Fallback (Should not be hit if injection is correct)
+                System.err.println("CRITICAL: Dashboard controller missing.");
             }
         });
     }
@@ -454,4 +442,9 @@ public class PaymentPageController {
         stage.setScene(scene);
         stage.show();
     }
+
+    public void setDashboardController(CustomerDashboardController controller) {
+        this.dashboardController = controller;
+    }
+
 }

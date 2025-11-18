@@ -40,7 +40,7 @@
                 "INSERT INTO pricing (branch_ID, slot_type, hourly_rate, overtime_rate) VALUES (?, ?, ?, ?)" +
                         "ON DUPLICATE KEY UPDATE hourly_rate = VALUES(hourly_rate), overtime_rate = VALUES(overtime_rate)";
         private static final String SELECT_SLOT_BY_ID =
-                "SELECT * FROM parking_slots WHERE slot_ID = ?";
+                "SELECT * FROM parking_slots WHERE spot_ID = ?";
         private static final String UPDATE_SLOT_TYPE =
                 "UPDATE parking_slots SET slot_type = ? WHERE slot_ID = ?";
 

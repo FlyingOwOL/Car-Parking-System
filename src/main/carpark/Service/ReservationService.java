@@ -8,6 +8,7 @@ import Model.Entity.ParkingSlot;
 import Model.Entity.ReservationStatus;
 import Model.Entity.SlotType;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -30,7 +31,7 @@ public class ReservationService {
     }
 
    
-    public Optional<Reservation> createReservation(int userID, int vehicleID, int branchID, SlotType slotType, LocalDateTime expectedTimeIn) {
+    public Optional<Reservation> createReservation(int userId, int vehicleID, int branchID, SlotType slotType, LocalDateTime expectedTimeIn, LocalDateTime expectedExitTime) {
         Connection conn = null;
         
         try {
@@ -58,8 +59,18 @@ public class ReservationService {
                     LocalDateTime.now(),
                     ReservationStatus.ACTIVE
             );
-            
+
+            newReservation.setCheckInTime(expectedTimeIn);
+            newReservation.setCheckOutTime(expectedExitTime);
+
             Optional<Reservation> createdReservation = reservationDAO.insertReservation(newReservation, conn);
+
+            System.out.println("INSERTING RESERVATION:");
+            System.out.println("Vehicle ID: " + newReservation.getVehicleID());
+            System.out.println("Spot ID: " + newReservation.getSpotID());
+            System.out.println("Check-in: " + newReservation.getCheckInTime());
+            System.out.println("Checkout: " + newReservation.getTimeOut());
+            System.out.println("Status: " + newReservation.getStatus());
             
             if (createdReservation.isEmpty()) {
                 System.err.println("ReservationService: Failed to insert reservation");
@@ -195,5 +206,13 @@ public class ReservationService {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * NEW: Updates all reservations that have passed their time_Out to 'COMPLETED'.
+     * Should be called on application startup or dashboard load.
+     */
+    public void refreshSystemStatuses() {
+        reservationDAO.updateExpiredReservations();
     }
 }

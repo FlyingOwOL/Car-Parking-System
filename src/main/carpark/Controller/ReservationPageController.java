@@ -44,11 +44,14 @@ public class ReservationPageController {
     private ParkingDAO parkingDAO;
     private ReservationService reservationService;
 
+    private CustomerDashboardController mainDashboardController;
+
     @FXML
     public void initialize() {
         this.vehicleDAO = new VehicleDAO();
         this.parkingDAO = new ParkingDAO();
         this.reservationService = new ReservationService();
+        this.reservationService.refreshSystemStatuses();
 
         // 1. Populate Vehicle ComboBox
         int currentUserId = SessionManager.getCurrentUser().getUser_ID();
@@ -88,6 +91,10 @@ public class ReservationPageController {
 
         // 7. Initial compute
         computePrice();
+    }
+
+    public void setMainDashboardController(CustomerDashboardController controller) {
+        this.mainDashboardController = controller;
     }
 
     @FXML
@@ -168,6 +175,7 @@ public class ReservationPageController {
         Branch branch = locationComboBox.getValue();
         SlotType slotType = slotTypeComboBox.getValue();
         LocalDateTime entry = entryDatePicker.getValue().atTime(entryTimeHour.getValue(), entryTimeMinute.getValue());
+        LocalDateTime exit = exitDatePicker.getValue().atTime(exitTimeHour.getValue(), exitTimeMinute.getValue());
 
         // 2. Call the ReservationService
         Optional<Reservation> newReservation = reservationService.createReservation(
@@ -175,27 +183,27 @@ public class ReservationPageController {
                 vehicle.getVehicle_id(),
                 branch.getBranch_ID(),
                 slotType,
-                entry
+                entry,
+                exit
         );
 
         if (newReservation.isPresent()) {
             Reservation finalReservation = newReservation.get();
-            try {
-                Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-                CustomerDashboardController parentController = (CustomerDashboardController) currentStage.getScene().getRoot().getUserData();
+            // 3. Navigate to the actual payment page
+            System.out.println("Reservation created! ID: " + finalReservation.getReservationID());
 
-                if (parentController != null) {
-                    parentController.loadPaymentPage(finalReservation);
-                } else {
-                    System.err.println("CRITICAL: Cannot find parent dashboard controller for navigation.");
-                    new Alert(Alert.AlertType.INFORMATION, "Booking Success! ID: " + finalReservation.getReservationID() + " - Payment navigation failed.").showAndWait();
-                }
-
-            } catch (Exception e) {
-                System.err.println("Navigation error: " + e.getMessage());
-                e.printStackTrace();
-                new Alert(Alert.AlertType.ERROR, "Reservation Success, but Navigation Failed. See console.").showAndWait();
+            // FIX: Use the injected mainDashboardController directly
+            if (this.mainDashboardController != null) {
+                this.mainDashboardController.loadPaymentPage(finalReservation);
+            } else {
+                // Fallback if controller injection failed (should not happen if CustomerDashboardController uses loadPageWithControllerInjection)
+                System.err.println("CRITICAL: Parent dashboard controller reference is missing.");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Navigation Error");
+                alert.setHeaderText("Reservation Successful, but Navigation Failed");
+                alert.setContentText("Your reservation ID is " + finalReservation.getReservationID() + ", but we could not load the payment page.");
+                alert.showAndWait();
             }
         } else {
             // Show error (e.g., no slots left)

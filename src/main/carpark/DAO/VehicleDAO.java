@@ -15,6 +15,8 @@ public class VehicleDAO {
 
     // === SQL QUERIES ===
     private static final String SELECT_VEHICLE_BY_USERID = "SELECT * FROM vehicles WHERE user_ID = ?";
+    private static final String SELECT_VEHICLE_BY_ID =
+            "SELECT vehicle_ID, user_ID, plate_number, vehicle_Type, vehicle_Brand FROM vehicles WHERE vehicle_ID = ?";
     private static final String INSERT_VEHICLE = "INSERT INTO vehicles (user_ID, plate_number, vehicle_Type, vehicle_Brand) VALUES (?, ?, ?, ?)";
     private static final String DELETE_VEHICLE = "DELETE FROM vehicles WHERE vehicle_ID = ?";
 
@@ -51,6 +53,52 @@ public class VehicleDAO {
         } catch (SQLException e) {
             System.err.println("VehicleDAO Error in getVehicleByUserID: " + e.getMessage());
             return new ArrayList<>();
+        } finally {
+            DBConnectionUtil.closeConnection(conn, ps, rs);
+        }
+    }
+
+    /**
+     * Helper method to map a ResultSet row to a Vehicle object.
+     */
+    private Vehicle mapRowToVehicle(ResultSet rs) throws SQLException {
+        int vehicleId = rs.getInt("vehicle_ID");
+        int userId = rs.getInt("user_ID");
+        String plateNumber = rs.getString("plate_number");
+        String vehicleType = rs.getString("vehicle_Type");
+        String vehicleBrand = rs.getString("vehicle_Brand");
+
+        // The Vehicle entity's constructor must be updated to use camelCase here:
+        return new Vehicle(vehicleId, userId, plateNumber, vehicleType, vehicleBrand);
+    }
+
+    /**
+     * Retrieves a single vehicle record by its primary key ID.
+     * This is required by the PaymentPageController to fetch the plate number.
+     *
+     * @param vehicleId The unique ID of the vehicle.
+     * @return An Optional containing the Vehicle object if found.
+     */
+    public Optional<Vehicle> findVehicleById(int vehicleId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnectionUtil.getConnection();
+            ps = conn.prepareStatement(SELECT_VEHICLE_BY_ID);
+            ps.setInt(1, vehicleId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(mapRowToVehicle(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            System.err.println("VehicleDAO Error in findVehicleById: " + e.getMessage());
+            return Optional.empty();
         } finally {
             DBConnectionUtil.closeConnection(conn, ps, rs);
         }

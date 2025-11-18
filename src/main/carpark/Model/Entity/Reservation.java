@@ -59,6 +59,9 @@ public class Reservation {
     public void setTransactID(int transactID) { this.reservation_ID = transactID; }
 
     // Use to update reservations
+    public void setCheckInTime(LocalDateTime checkInTime) {
+        this.checkInTime = checkInTime;
+    }
     public void setCheckOutTime (LocalDateTime checkOut){
         this.checkOutTime = checkOut;
     }
