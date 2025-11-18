@@ -1,6 +1,14 @@
 package Service;
 
+import DAO.VehicleDAO;
+import Model.Entity.Vehicle;
+
+import java.sql.SQLException;
+import java.util.Optional;
+
 public class CustomerService {
+
+    VehicleDAO vehicleDAO = new VehicleDAO();
 
     /*
     Method: registerAccount(...), updateProfile?, addVehicle()?
@@ -15,7 +23,13 @@ public class CustomerService {
 
     }
 
-    public void addVehicle(){
+    public boolean addVehicle(int userID, String plateNumber, String brand, String type) throws SQLException {
+        Vehicle vehicle = new Vehicle(0, userID, plateNumber, type, brand);
+        Optional<Vehicle> added = vehicleDAO.addVehicle(vehicle);
+        return added.isPresent();
+    }
 
+    public boolean deleteVehicle(int vehicleID) throws SQLException {
+        return vehicleDAO.deleteVehicle(vehicleID);
     }
 }

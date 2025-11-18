@@ -63,7 +63,7 @@ public class CustomerDashboardController {
     @FXML
     private void handleProfileClick(ActionEvent event) {
         System.out.println("Profile clicked");
-        //loadPage("/fxml/account_page.fxml");
+        loadPageWithControllerInjection("/fxml/profile_page.fxml");
     }
 
     @FXML
@@ -87,30 +87,6 @@ public class CustomerDashboardController {
         } catch (IOException e) {
             System.err.println("Failed to load login_scene.fxml");
             e.printStackTrace();
-        }
-    }
-
-    private void loadPage(String fxmlPath) {
-        if (mainContentArea == null) {
-            System.err.println("Main Content Area is null");
-            return;
-        }
-
-        try {
-            Parent page = FXMLLoader.load(getClass().getResource(fxmlPath));
-
-            mainContentArea.getChildren().setAll(page);
-
-            AnchorPane.setTopAnchor(page, 0.0);
-            AnchorPane.setLeftAnchor(page, 0.0);
-            AnchorPane.setRightAnchor(page, 0.0);
-            AnchorPane.setBottomAnchor(page, 0.0);
-        } catch (IOException e) {
-            System.err.println("Error loading page: " + fxmlPath);
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            System.err.println("Cannot find FXML file: " + fxmlPath);
-            mainContentArea.getChildren().setAll(new Label("Cannot find FXML file: " + fxmlPath));
         }
     }
 

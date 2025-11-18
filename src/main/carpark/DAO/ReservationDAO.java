@@ -2,13 +2,13 @@ package DAO;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import Model.DTO.ReservationSummaryDTO;
 import Model.Entity.Reservation;
 import Model.Entity.ReservationStatus;
-import Model.Entity.SlotType;
-
-import javax.naming.NamingEnumeration;
 
 public class ReservationDAO {
     // SY
@@ -29,9 +29,7 @@ public class ReservationDAO {
 
     Connection        conn = null;
     PreparedStatement ps   = null;
-    PreparedStatement ex   = null;
     ResultSet         rs   = null;
-    ResultSet         rs2  = null;
     /**
      * 
      * @param reservation_ID
@@ -165,6 +163,56 @@ public class ReservationDAO {
         return new Reservation(
                 transactID, vehicleId, spotId, expected, checkIn, out, reserved, status
         );
+    }
+
+    public List<ReservationSummaryDTO> findReservationSummariesByUserId(int userId) {
+        String sql = """
+        SELECT 
+            r.*, 
+            v.plate_number, 
+            COALESCE(p.amount_paid, 0) AS totalPaid
+        FROM reservations r
+        JOIN vehicles v ON r.vehicle_ID = v.vehicle_ID
+        LEFT JOIN payments p ON p.transact_ID = r.transact_ID
+        WHERE v.user_ID = ?
+        ORDER BY r.dateReserved DESC
+    """;
+
+        List<ReservationSummaryDTO> list = new ArrayList<>();
+
+        try (Connection conn = DBConnectionUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                // Build Reservation object from r.* columns
+                Reservation reservation = new Reservation(
+                        rs.getInt("transact_ID"),
+                        rs.getInt("vehicle_ID"),
+                        rs.getString("spot_ID"),
+                        rs.getTimestamp("expected_time_in") != null ? rs.getTimestamp("expected_time_in").toLocalDateTime() : null,
+                        rs.getTimestamp("check_in_time") != null ? rs.getTimestamp("check_in_time").toLocalDateTime() : null,
+                        rs.getTimestamp("time_Out") != null ? rs.getTimestamp("time_Out").toLocalDateTime() : null,
+                        rs.getTimestamp("dateReserved").toLocalDateTime(),
+                        ReservationStatus.valueOf(rs.getString("status").trim().toUpperCase())
+                );
+
+                ReservationSummaryDTO dto = new ReservationSummaryDTO(
+                        reservation,
+                        rs.getString("plate_number"),
+                        rs.getBigDecimal("totalPaid")
+                );
+
+                list.add(dto);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in findReservationSummariesByUserId: " + e.getMessage());
+        }
+
+        return list;
     }
 
     private java.sql.Timestamp dateChecker(LocalDateTime date) {return date != null ? java.sql.Timestamp.valueOf(date) : null;}
