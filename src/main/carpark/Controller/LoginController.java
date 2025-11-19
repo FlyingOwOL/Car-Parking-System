@@ -86,9 +86,13 @@ public class LoginController {
      */
     @FXML
     protected void handleRegisterLink(MouseEvent event) {
-        System.out.println("Register link clicked. Loading registration scene...");
-        // TODO: Implement navigation to the Registration FXML scene
-        showError("Registration scene not yet implemented.");
+        String fxmlPath = "/fxml/register_scene.fxml";
+        try{
+            loadScene(fxmlPath, null);
+        } catch (IOException e){
+            showError("Error: Could not load the account registration.");
+            e.printStackTrace();
+        }
     }
 
     private void showError(String message) {
