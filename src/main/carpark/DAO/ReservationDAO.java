@@ -20,12 +20,11 @@ public class ReservationDAO {
                                                            "FROM parking_slots " + 
                                                            "WHERE spot_ID = ?";
     //(vehicle_ID, spot_ID, expected_time_in, dateReserved, check_in_time, timeOut, status)
-    private static final String INSERT_RESERVATION = "INSERT INTO reservations " +
-            "(vehicle_ID, spot_ID, expected_time_in, check_in_time, time_Out, dateReserved, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String AUTO_COMPLETE_EXPIRED =
-            "UPDATE reservations SET status = 'Completed' " +
-                    "WHERE status = 'Active' AND time_Out < NOW()";
+    private static final String INSERT_RESERVATION       = "INSERT INTO reservations " +
+                                            "(vehicle_ID, spot_ID, expected_time_in, check_in_time, time_Out, dateReserved, status) " +
+                                            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String AUTO_COMPLETE_EXPIRED    = "UPDATE reservations SET status = 'Completed' " +
+                                                           "WHERE status = 'Active' AND time_Out < NOW()";
 
     Connection        conn = null;
     PreparedStatement ps   = null;
@@ -192,10 +191,10 @@ public class ReservationDAO {
                         rs.getInt("transact_ID"),
                         rs.getInt("vehicle_ID"),
                         rs.getString("spot_ID"),
-                        rs.getTimestamp("expected_time_in") != null ? rs.getTimestamp("expected_time_in").toLocalDateTime() : null,
-                        rs.getTimestamp("check_in_time") != null ? rs.getTimestamp("check_in_time").toLocalDateTime() : null,
-                        rs.getTimestamp("time_Out") != null ? rs.getTimestamp("time_Out").toLocalDateTime() : null,
-                        rs.getTimestamp("dateReserved").toLocalDateTime(),
+                        dateChecker(rs.getTimestamp("expected_time_in")),
+                        dateChecker(rs.getTimestamp("check_in_time")),
+                        dateChecker(rs.getTimestamp("time_Out")),
+                        dateChecker(rs.getTimestamp("dateReserved")),
                         ReservationStatus.valueOf(rs.getString("status").trim().toUpperCase())
                 );
 
