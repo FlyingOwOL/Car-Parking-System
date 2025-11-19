@@ -1,5 +1,6 @@
 package DAO;
 
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,9 +17,7 @@ public class ReservationDAO {
     // === SQL QUERRIES === //
     private static final String SELECT_RESERVATION_BY_ID = "SELECT * FROM reservations WHERE transact_ID = ? ";
     private static final String UPDATE_RESERVATION       = "UPDATE reservations SET status = ? WHERE transact_ID = ? ";
-    private static final String GET_EXTRA_PROPERTIES     = "SELECT branch_ID, slot_type " + 
-                                                           "FROM parking_slots " + 
-                                                           "WHERE spot_ID = ?";
+
     //(vehicle_ID, spot_ID, expected_time_in, dateReserved, check_in_time, timeOut, status)
     private static final String INSERT_RESERVATION       = "INSERT INTO reservations " +
                                             "(vehicle_ID, spot_ID, expected_time_in, check_in_time, time_Out, dateReserved, status) " +
