@@ -28,6 +28,7 @@ public class RegisterAccountController {
     private PasswordField passwordField;
     @FXML
     private ComboBox<String> roleField;
+    @FXML
     private Label errorLabel;
     @FXML 
     private Button registerButton;
