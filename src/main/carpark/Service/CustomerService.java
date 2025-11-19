@@ -1,6 +1,8 @@
 package Service;
 
+import DAO.CustomerDAO;
 import DAO.VehicleDAO;
+import Model.Entity.Customer;
 import Model.Entity.Vehicle;
 
 import java.sql.SQLException;
@@ -9,18 +11,21 @@ import java.util.Optional;
 public class CustomerService {
 
     VehicleDAO vehicleDAO = new VehicleDAO();
+    CustomerDAO customerDAO = new CustomerDAO();
 
     /*
     Method: registerAccount(...), updateProfile?, addVehicle()?
-    TODO: SY
+     SY
     4.1 User Account Registration as a Transaction
      */
-    public void registerAccount(){
-
+    public boolean registerAccount(int user_ID, String firstname, String surname, String contact_number){
+        Customer newCustomer = new Customer(user_ID, firstname, surname, contact_number);
+        Optional<Customer> added = customerDAO.addCustomer(newCustomer);
+        return added.isPresent();
     }
 
-    public void updateProfile(){
-
+    public boolean updateProfile(Customer customer){
+        return customerDAO.updateCustomer(customer);
     }
 
     public boolean addVehicle(int userID, String plateNumber, String brand, String type) throws SQLException {
