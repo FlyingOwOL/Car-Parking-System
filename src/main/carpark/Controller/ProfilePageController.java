@@ -105,7 +105,6 @@ public class ProfilePageController {
         reservationsTable.setItems(reservationList);
     }
 
-
     private void loadProfileData() {
         if (currentUser == null) return;
 
@@ -126,7 +125,6 @@ public class ProfilePageController {
         vehicleList.addAll(vehicles);
         vehiclesTable.setItems(vehicleList);
     }
-
 
     private void loadReservationData() {
         reservationList.clear();

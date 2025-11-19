@@ -69,13 +69,10 @@ public class BranchManagementService {
                     int currentFloor = (i / SLOTS_PER_FLOOR) + 1;
                     int slotIndexOnFloor = i % SLOTS_PER_FLOOR;
 
-                    String spotID;
                     SlotType slotType;
 
+                    // Determine slot type
                     if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR) {
-                        spotID = currentFloor + "A" + String.format("%02d", slotIndexOnFloor + 1);
-
-                        // Assign type based on ratio *within* the 40 car slots
                         if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR * PWD_RATIO) {
                             slotType = SlotType.PWD;
                         } else if (slotIndexOnFloor < CAR_SLOTS_PER_FLOOR * (PWD_RATIO + VIP_RATIO)) {
@@ -84,12 +81,25 @@ public class BranchManagementService {
                             slotType = SlotType.REGULAR;
                         }
                     } else {
-                        int motorcycleSlotNumber = (slotIndexOnFloor - CAR_SLOTS_PER_FLOOR) + 1;
-                        spotID = currentFloor + "M" + String.format("%02d", motorcycleSlotNumber);
                         slotType = SlotType.MOTORCYCLE;
                     }
 
-                    ParkingSlot newSlot = new ParkingSlot(spotID, newBranchId, currentFloor, slotType);
+                    // Generate new unique Slot ID: BranchID-Type-Floor-XXX
+                    String slotTypeCode = codeFor(slotType);
+                    String spotID = String.format(
+                            "%d-%s-%d-%03d",
+                            newBranchId,        // branchID
+                            slotTypeCode,       // slot type code
+                            currentFloor,       // floor level
+                            slotIndexOnFloor+1  // incrementing index
+                    );
+
+                    ParkingSlot newSlot = new ParkingSlot(
+                            spotID,
+                            newBranchId,
+                            currentFloor,
+                            slotType
+                    );
 
                     if (!parkingDAO.insertSlot(newSlot, conn)) {
                         throw new SQLException("Failed to insert slot " + spotID + ". Rolling back transaction.");
@@ -106,6 +116,7 @@ public class BranchManagementService {
                 parkingDAO.insertOrUpdatePricing(new Pricing(newBranchId, SlotType.VIP, VIP_RATE, VIP_RATE.multiply(new BigDecimal("1.5"))));
 
                 conn.commit();
+                System.out.println("Successfully created slot " + newBranchId + ".");
                 return newBranchId;
             }
 
@@ -164,5 +175,14 @@ public class BranchManagementService {
             System.err.println(e.getMessage());
             return false;
         }
+    }
+
+    private String codeFor(SlotType type) {
+        return switch (type) {
+            case REGULAR -> "R";
+            case VIP -> "V";
+            case PWD -> "P";
+            case MOTORCYCLE -> "M";
+        };
     }
 }
