@@ -2,11 +2,9 @@ package Controller;
 
 import java.io.IOException;
 import java.util.Optional;
-import Model.Entity.Admin;
 import Model.Entity.User;
 import Service.CustomerService;
 import Service.UserService;
-import Service.Admin.AdminService;
 import Utilities.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,7 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -27,10 +24,8 @@ public class RegisterAccountController {
     @FXML
     private PasswordField passwordField;
     @FXML
-    private ComboBox<String> roleField;
-    @FXML
     private Label errorLabel;
-    @FXML 
+    @FXML
     private Button registerButton;
     @FXML
     private Button returnButton;
@@ -40,43 +35,39 @@ public class RegisterAccountController {
     private TextField surnameField;
     @FXML
     private TextField contactNumberField;
-    @FXML
-    private TextField jobTitleField;
-    @FXML
-    private TextField branchIDField;
+
+    // REMOVED: Job Title and Branch ID fields
 
     private UserService     userService;
     private CustomerService customerService;
-    private AdminService    adminService;
+    // REMOVED: AdminService adminService;
 
     @FXML
     public void initialize(){
         this.userService     = new UserService();
         this.customerService = new CustomerService();
-        this.adminService    = new AdminService();
+        // REMOVED: this.adminService = new AdminService();
+
         returnButton.setOnAction(this::handleReturnToLoginAction);
         registerButton.setOnAction(this::handleRegisterButtonAction);
-        roleField.getItems().addAll("Admin", "Customer");
+
+        // REMOVED: roleField population code
         errorLabel.setText("");
     }
 
-    /**
-     * Handles the action event when the "Register" button is clicked
-     * This method is linked from the 'onAction' property of the Button in FXML.
-     * 
-     * @param event
-     */
     @FXML
     protected void handleRegisterButtonAction(ActionEvent event){
         String email         = emailField.getText();
         String password      = passwordField.getText();
-        String role          = roleField.getValue().toUpperCase();  
         String firstname     = firstnameField.getText();
         String surname       = surnameField.getText();
         String contactNumber = contactNumberField.getText();
 
+        // FIX: Hardcode the role to "Customer"
+        String role = "Customer";
+
         if (email.isEmpty() || password.isEmpty()) {
-            showError("Email, password, and role must not be empty.");
+            showError("Email and password must not be empty.");
             return;
         }
         if (firstname.isEmpty() || surname.isEmpty() || contactNumber.isEmpty()){
@@ -84,53 +75,41 @@ public class RegisterAccountController {
             return;
         }
         if (!validNumber(contactNumber)){
-            showError("Contact number must be 11 long");
+            showError("Contact number must be 11 digits long");
             return;
         }
+
         try {
+            // 1. Register the Base User with "Customer" role
             Optional<User> userOptional = userService.register(email, password, role);
-            User user = userOptional.get();
-            boolean isSuccesful = false;
 
-            if (role == "Admin"){
-                isSuccesful = addAdmin(user, email, password, firstname, surname, contactNumber);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                // 2. Automatically add as Customer (No Admin check needed)
+                boolean isSuccesful = addCustomer(user, firstname, surname, contactNumber);
+
+                if (isSuccesful){
+                    SessionManager.login(user);
+                    redirectToDashboard(user, event);
+                }
             } else {
-                isSuccesful = addCustomer(user, firstname, surname, contactNumber);
-            }
-
-            if (isSuccesful){
-                SessionManager.login(user);
-                redirectToDashboard(user, event);                
+                showError("Registration failed. Email might already exist.");
             }
         } catch (Exception e) {
-            showError("An unexpected error occured. Please try again.");
+            showError("An unexpected error occurred.");
             e.printStackTrace();
         }
     }
 
-    private boolean addAdmin(User user, String email, String password, String firstname, String surname, String contactNumber){
-        String jobTitle = jobTitleField.getText();
-        int    branchID = Integer.parseInt(branchIDField.getText());
-
-        Admin newAdmin = new Admin();
-        newAdmin.setJob_title(jobTitle);
-        newAdmin.setBranch_ID(branchID);
-        newAdmin.setFirstname(firstname);
-        newAdmin.setSurname(surname);
-        newAdmin.setContact_number(contactNumber);
-
-        boolean isSuccesful = adminService.createNewAdmin(user, email, password, newAdmin);
-
-        return isSuccesful;
-    }
-
     private boolean addCustomer(User user, String firstname, String surname, String contactNumber){
-        boolean isSuccesful = customerService.registerAccount(firstname, surname, contactNumber, user);
-        return isSuccesful;
+        return customerService.registerAccount(firstname, surname, contactNumber, user);
     }
+
     private boolean validNumber (String number){
         return number.length() == 11;
     }
+
     @FXML
     protected void handleReturnToLoginAction(ActionEvent event){
         try{
@@ -143,7 +122,6 @@ public class RegisterAccountController {
 
     private void redirectToLogin(ActionEvent event){
         String fxmlPath = "/fxml/login_scene.fxml";
-
         try {
             loadScene(fxmlPath, event);
         } catch (IOException e){
@@ -151,23 +129,15 @@ public class RegisterAccountController {
             e.printStackTrace();
         }
     }
+
     private void showError(String message) {
         errorLabel.setText(message);
     }
 
     private void redirectToDashboard(User user, ActionEvent event) {
-        String fxmlPath = "";
+        // Since they are always Customers now, you can go straight to Customer Dashboard
+        String fxmlPath = "/fxml/customer_dashboard.fxml";
 
-        // 1. Check the user's role
-        if (userService.isAdmin(user)) {
-            // Admin Role (Task 4.4)
-            fxmlPath = "/fxml/admin_dashboard.fxml"; // Path to Admin Dashboard
-        } else {
-            // Customer Role
-            fxmlPath = "/fxml/customer_dashboard.fxml"; // Path to Customer Dashboard
-        }
-
-        // 2. Load the new scene
         try {
             loadScene(fxmlPath, event);
         } catch (IOException e) {
@@ -175,15 +145,11 @@ public class RegisterAccountController {
             e.printStackTrace();
         }
     }
+
     private void loadScene(String fxmlPath, ActionEvent event) throws IOException {
-        // Load the new FXML file
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent root = loader.load();
-
-        // Get the current stage (window) from the event source
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-        // Set the new scene on the stage
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();

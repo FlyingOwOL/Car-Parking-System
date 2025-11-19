@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.RegisterAccountController">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0">
          <top>
@@ -35,9 +28,6 @@
                <left>
                   <Pane prefHeight="277.0" prefWidth="380.0" BorderPane.alignment="CENTER" />
                </left>
-               <bottom>
-                  <Pane prefHeight="36.0" prefWidth="468.0" BorderPane.alignment="CENTER" />
-               </bottom>
                <top>
                   <VBox alignment="CENTER" prefHeight="55.0" prefWidth="468.0" BorderPane.alignment="CENTER">
                      <children>
@@ -63,34 +53,25 @@
                            </VBox.margin>
                         </TextField>
                         <Label text="Password:" textFill="WHITE" />
-                        <TextField fx:id="passwordField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter password">
-                           <VBox.margin>
-                              <Insets bottom="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <Label text="Role" textFill="WHITE" />
-                        <ComboBox fx:id="roleField" prefWidth="150.0" promptText="select-role" style="-fx-background-color: white; -fx-border-color: #4b614d;">
-                           <VBox.margin>
-                              <Insets bottom="20.0" />
-                           </VBox.margin>
-                        </ComboBox>
+                         <PasswordField fx:id="passwordField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter password">
+                             <VBox.margin>
+                                 <Insets bottom="10.0" />
+                             </VBox.margin>
+                         </PasswordField>
                         <Label text="Firstname" textFill="WHITE" />
                         <TextField fx:id="firstnameField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter firstname" />
                         <Label text="Surname" textFill="WHITE" />
                         <TextField fx:id="surnameField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter surname" />
                         <Label text="Contact Number" textFill="WHITE" />
                         <TextField fx:id="contactNumberField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter contact number" />
-                        <Label text="Job Title (Admin)" textFill="WHITE" />
-                        <TextField fx:id="jobTitleField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter Job title" />
-                        <Label text="Branch ID (Admin)" textFill="WHITE" />
-                        <TextField fx:id="branchIDField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter branch id" />
                         <Label fx:id="errorLabel" prefHeight="20.0" prefWidth="200.0" textFill="RED" />
-                        <Button fx:id="registerButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Register" />
-                        <Button fx:id="returnButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Return">
-                           <VBox.margin>
-                              <Insets bottom="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Button>
+                        <HBox alignment="CENTER" prefHeight="38.0" prefWidth="317.0">
+                           <children>
+                              <Button fx:id="registerButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Register" />
+                              <Pane prefHeight="38.0" prefWidth="21.0" />
+                              <Button fx:id="returnButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Return" />
+                           </children>
+                        </HBox>
                      </children>
                   </VBox>
                </center>
