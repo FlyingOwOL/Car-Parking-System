@@ -4,6 +4,7 @@ import DAO.UserDAO;
 import Model.Entity.User;
 import Model.Entity.UserRole;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,14 @@ public class UserService {
      */
     public UserService() {
         this.userDAO = new UserDAO();
+    }
+    public Optional<User> register(String email, String password, String role){
+        LocalDate newDate = LocalDate.now();
+        User user = new User(email, password, UserRole.fromString(role), newDate);
+
+        Optional<User> newUser = userDAO.addUser(user);
+
+        return newUser;
     }
 
     /**

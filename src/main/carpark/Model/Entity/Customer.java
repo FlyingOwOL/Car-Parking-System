@@ -19,6 +19,19 @@ public class Customer {
     public Customer() {}
 
     /**
+     * Constructor for new customers
+     * 
+     * @param firstname
+     * @param surname
+     * @param contact_number
+     */
+    public Customer(String firstname, String surname, String contact_number){
+        this.firstname = firstname;
+        this.surname = surname;
+        this.contact_number = contact_number;
+    }
+
+    /**
      * Constructor for existing customers
      * @param customer_ID The customer's unique identifier
      * @param user_ID The associated User account ID
