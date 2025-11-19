@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0">
@@ -58,27 +57,38 @@
                   <VBox alignment="CENTER" prefHeight="178.0" prefWidth="262.0" style="-fx-background-color: #4b614d;" BorderPane.alignment="CENTER">
                      <children>
                         <Label text="Email Address:" textFill="WHITE" />
-                        <TextField maxWidth="-Infinity" prefHeight="26.0" prefWidth="255.0" promptText="Enter email">
+                        <TextField fx:id="emailField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="255.0" promptText="Enter email">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </TextField>
                         <Label text="Password:" textFill="WHITE" />
-                        <TextField maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter password">
+                        <TextField fx:id="passwordField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter password">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </TextField>
                         <Label text="Role" textFill="WHITE" />
-                        <ComboBox prefWidth="150.0" promptText="select-role" style="-fx-background-color: white; -fx-border-color: #4b614d;">
+                        <ComboBox fx:id="roleField" prefWidth="150.0" promptText="select-role" style="-fx-background-color: white; -fx-border-color: #4b614d;">
                            <VBox.margin>
                               <Insets bottom="20.0" />
                            </VBox.margin>
                         </ComboBox>
-                        <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Register" />
-                        <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Return">
+                        <Label text="Firstname" textFill="WHITE" />
+                        <TextField fx:id="firstnameField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter firstname" />
+                        <Label text="Surname" textFill="WHITE" />
+                        <TextField fx:id="surnameField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter surname" />
+                        <Label text="Contact Number" textFill="WHITE" />
+                        <TextField fx:id="contactNumberField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter contact number" />
+                        <Label text="Job Title (Admin)" textFill="WHITE" />
+                        <TextField fx:id="jobTitleField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter Job title" />
+                        <Label text="Branch ID (Admin)" textFill="WHITE" />
+                        <TextField fx:id="branchIDField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="257.0" promptText="Enter branch id" />
+                        <Label fx:id="errorLabel" prefHeight="20.0" prefWidth="200.0" textFill="RED" />
+                        <Button fx:id="registerButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Register" />
+                        <Button fx:id="returnButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="Return">
                            <VBox.margin>
-                              <Insets top="10.0" />
+                              <Insets bottom="10.0" top="10.0" />
                            </VBox.margin>
                         </Button>
                      </children>
