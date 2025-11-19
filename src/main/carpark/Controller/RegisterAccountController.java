@@ -36,22 +36,17 @@ public class RegisterAccountController {
     @FXML
     private TextField contactNumberField;
 
-    // REMOVED: Job Title and Branch ID fields
-
     private UserService     userService;
     private CustomerService customerService;
-    // REMOVED: AdminService adminService;
 
     @FXML
     public void initialize(){
         this.userService     = new UserService();
         this.customerService = new CustomerService();
-        // REMOVED: this.adminService = new AdminService();
 
         returnButton.setOnAction(this::handleReturnToLoginAction);
         registerButton.setOnAction(this::handleRegisterButtonAction);
 
-        // REMOVED: roleField population code
         errorLabel.setText("");
     }
 
@@ -80,13 +75,11 @@ public class RegisterAccountController {
         }
 
         try {
-            // 1. Register the Base User with "Customer" role
             Optional<User> userOptional = userService.register(email, password, role);
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 
-                // 2. Automatically add as Customer (No Admin check needed)
                 boolean isSuccesful = addCustomer(user, firstname, surname, contactNumber);
 
                 if (isSuccesful){
@@ -135,7 +128,6 @@ public class RegisterAccountController {
     }
 
     private void redirectToDashboard(User user, ActionEvent event) {
-        // Since they are always Customers now, you can go straight to Customer Dashboard
         String fxmlPath = "/fxml/customer_dashboard.fxml";
 
         try {
