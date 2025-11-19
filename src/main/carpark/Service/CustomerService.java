@@ -20,10 +20,8 @@ public class CustomerService {
     4.1 User Account Registration as a Transaction
      */
     public boolean registerAccount(String firstname, String surname, String contact_number, User user){
-        Customer newCustomer = new Customer(firstname, surname, contact_number);
         int      userId = user.getUser_ID();
-
-        newCustomer.setUser_ID(userId);
+        Customer newCustomer = new Customer(userId, firstname, surname, contact_number);
 
         Optional<Customer> added = customerDAO.addCustomer(newCustomer);
         return added.isPresent();
