@@ -162,7 +162,7 @@ public class BranchManagementService {
             authorizeAdmin(admin);
 
             Optional<ParkingSlot> slotOpt = parkingDAO.getSlotByID(spotId);
-            if (slotOpt.isPresent() && !slotOpt.get().isAvailability()) {
+            if (slotOpt.isPresent() && slotOpt.get().isAvailability()) {
                 System.err.println("Cannot change type: Slot " + spotId + " is currently occupied");
                 return false;
             }

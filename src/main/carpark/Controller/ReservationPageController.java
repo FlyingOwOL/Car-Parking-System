@@ -51,7 +51,7 @@ public class ReservationPageController {
         this.vehicleDAO = new VehicleDAO();
         this.parkingDAO = new ParkingDAO();
         this.reservationService = new ReservationService();
-        this.reservationService.refreshSystemStatuses();
+        //this.reservationService.refreshSystemStatuses();
 
         // 1. Populate Vehicle ComboBox
         int currentUserId = SessionManager.getCurrentUser().getUser_ID();
