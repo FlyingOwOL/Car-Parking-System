@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="S19-04-DBCREATION.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+    <script-file value="$PROJECT_DIR$/src/main/resources/sql/S19-04-DBCREATION.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="07402c45-9673-4472-9ad3-5544d1fd6f09" namespace="schema/&quot;dbcar_parking_system&quot;" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="S19-04-DBCREATION.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+    <script-file value="$PROJECT_DIR$/src/main/resources/sql/S19-04-DBCREATION.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="07402c45-9673-4472-9ad3-5544d1fd6f09" />
+    <method v="2" />
+  </configuration>
+</component>

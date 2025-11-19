@@ -1,6 +1,7 @@
 package Controller;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -88,7 +89,7 @@ public class LoginController {
     protected void handleRegisterLink(MouseEvent event) {
         String fxmlPath = "/fxml/register_scene.fxml";
         try{
-            loadScene(fxmlPath, null);
+            loadScene(fxmlPath, event);
         } catch (IOException e){
             showError("Error: Could not load the account registration.");
             e.printStackTrace();
@@ -99,7 +100,7 @@ public class LoginController {
         errorLabel.setText(message);
     }
 
-    private void redirectToDashboard(User user, ActionEvent event) {
+    private void redirectToDashboard(User user, Event event) {
         String fxmlPath = "";
 
         // 1. Check the user's role
@@ -120,7 +121,7 @@ public class LoginController {
         }
     }
 
-    private void loadScene(String fxmlPath, ActionEvent event) throws IOException {
+    private void loadScene(String fxmlPath, Event event) throws IOException {
         // Load the new FXML file
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent root = loader.load();
